@@ -1,0 +1,788 @@
+Apollo.io
+
+
+WikipediaThe Free Encyclopedia
+Search Wikipedia
+Search
+Donate
+Create account
+Log in
+
+Contents hide
+(Top)
+History
+Dataset preprocessing
+
+Training
+
+Architecture
+
+Extensibility
+
+Forms of input and output
+
+Properties
+
+Interpretation
+
+Evaluation
+
+Ethical issues
+
+See also
+References
+Further reading
+Large language model
+
+Article
+Talk
+Read
+Edit
+View history
+
+Tools
+Appearance hide
+Text
+
+Small
+
+Standard
+
+Large
+Width
+
+Standard
+
+Wide
+Color (beta)
+
+Automatic
+
+Light
+
+Dark
+From Wikipedia, the free encyclopedia
+Not to be confused with Logic learning machine.
+"LLM" redirects here. For other uses, see LLM (disambiguation).
+
+Some of this article's listed sources may not be reliable. Please help improve this article by looking for better, more reliable sources. Unreliable citations may be challenged and removed. (August 2025) (Learn how and when to remove this message)
+Part of a series on
+Machine learning
+and data mining
+Paradigms
+Problems
+Supervised learning
+(classification • regression)
+Clustering
+Dimensionality reduction
+Structured prediction
+Anomaly detection
+Neural networks
+Reinforcement learning
+Learning with humans
+Model diagnostics
+Mathematical foundations
+Journals and conferences
+Related articles
+vte
+A large language model (LLM) is a language model trained with self-supervised machine learning on a vast amount of text, designed for natural language processing tasks, especially language generation.
+
+The largest and most capable LLMs are generative pretrained transformers (GPTs), which are largely used in generative chatbots such as ChatGPT, Gemini and Claude. LLMs can be fine-tuned for specific tasks or guided by prompt engineering.[1] These models acquire predictive power regarding syntax, semantics, and ontologies[2] inherent in human language corpora, but they also inherit inaccuracies and biases present in the data they are trained on.[3]
+
+History
+
+The training compute of notable large models in FLOPs vs publication date over the period 2010–2024. For overall notable models (top left), frontier models (top right), top language models (bottom left) and top models within leading companies (bottom right). The majority of these models are language models.
+
+The training compute of notable large AI models in FLOPs vs publication date over the period 2017–2024. The majority of large models are language models or multimodal models with language capacity.
+Before the emergence of transformer-based models in 2017, some language models were considered large relative to the computational and data constraints of their time. In the early 1990s, IBM's statistical models pioneered word alignment techniques for machine translation, laying the groundwork for corpus-based language modeling. A smoothed n-gram model in 2001, such as those employing Kneser-Ney smoothing, trained on 300 million words achieved state-of-the-art perplexity on benchmark tests at the time.[4] During the 2000s, with the rise of widespread internet access, researchers began compiling massive text datasets from the web ("web as corpus"[5]) to train statistical language models.[6][7]
+
+Moving beyond n-gram models, researchers started in 2000 to use neural networks to learn language models.[8] Following the breakthrough of deep neural networks in image classification around 2012,[9] similar architectures were adapted for language tasks. This shift was marked by the development of word embeddings (eg, Word2Vec by Mikolov in 2013) and sequence-to-sequence (seq2seq) models using LSTM. In 2016, Google transitioned its translation service to neural machine translation (NMT), replacing statistical phrase-based models with deep recurrent neural networks. These early NMT systems used LSTM-based encoder-decoder architectures, as they preceded the invention of transformers.
+
+
+An illustration of main components of the transformer model from the original paper, where layers were normalized after (instead of before) multiheaded attention
+At the 2017 NeurIPS conference, Google researchers introduced the transformer architecture in their landmark paper "Attention Is All You Need". This paper's goal was to improve upon 2014 seq2seq technology,[10] and was based mainly on the attention mechanism developed by Bahdanau et al. in 2014.[11] The following year in 2018, BERT was introduced and quickly became "ubiquitous".[12] Though the original transformer has both encoder and decoder blocks, BERT is an encoder-only model. Academic and research usage of BERT began to decline in 2023, following rapid improvements in the abilities of decoder-only models (such as GPT) to solve tasks via prompting.[13]
+
+Although decoder-only GPT-1 was introduced in 2018, it was GPT-2 in 2019 that caught widespread attention because OpenAI claimed to have initially deemed it too powerful to release publicly, out of fear of malicious use.[14] GPT-3 in 2020 went a step further and as of 2025 is available only via API with no offering of downloading the model to execute locally. But it was the 2022 consumer-facing chatbot ChatGPT that received extensive media coverage and public attention.[15] The 2023 GPT-4 was praised for its increased accuracy and as a "holy grail" for its multimodal capabilities.[16] OpenAI did not reveal the high-level architecture and the number of parameters of GPT-4. The release of ChatGPT led to an uptick in LLM usage across several research subfields of computer science, including robotics, software engineering, and societal impact work.[13] In 2024 OpenAI released the reasoning model OpenAI o1, which generates long chains of thought before returning a final answer.[17] Many LLMs with parameter counts comparable to those of OpenAI's GPT series have been developed.[18]
+
+Since 2022, source-available models have been gaining popularity, especially at first with BLOOM and LLaMA, though both have restrictions on the field of use. Mistral AI's models Mistral 7B and Mixtral 8x7b have the more permissive Apache License. In January 2025, DeepSeek released DeepSeek R1, a 671-billion-parameter open-weight model that performs comparably to OpenAI o1 but at a much lower cost.[19]
+
+Since 2023, many LLMs have been trained to be multimodal, having the ability to also process or generate other types of data, such as images or audio. These LLMs are also called large multimodal models (LMMs).[20]
+
+As of 2024, the largest and most capable models are all based on the transformer architecture. Some recent implementations are based on other architectures, such as recurrent neural network variants and Mamba (a state space model).[21][22][23]
+
+Dataset preprocessing
+See also: List of datasets for machine-learning research § Internet
+Tokenization
+
+As machine learning algorithms process numbers rather than text, the text must be converted to numbers. In the first step, a vocabulary is decided upon, then integer indices are arbitrarily but uniquely assigned to each vocabulary entry, and finally, an embedding is associated to the integer index. Algorithms include byte-pair encoding (BPE) and WordPiece. There are also special tokens serving as control characters, such as [MASK] for masked-out token (as used in BERT), and [UNK] ("unknown") for characters not appearing in the vocabulary. Also, some special symbols are used to denote special text formatting. For example, "Ġ" denotes a preceding whitespace in RoBERTa and GPT. "##" denotes continuation of a preceding word in BERT.[24]
+
+For example, the BPE tokenizer used by GPT-3 (Legacy) would split tokenizer: texts -> series of numerical "tokens" as
+
+token	izer	:	 texts	 ->	series	 of	 numerical	 "	t	ok	ens	"
+Tokenization also compresses the datasets. Because LLMs generally require input to be an array that is not jagged, the shorter texts must be "padded" until they match the length of the longest one. The average number of words per token depends on the language.[25][26] In English, the ratio is typically around 0.75 words per token, with 4 characters per token on average.[27]
+
+BPE
+Main article: Byte pair encoding
+As an example, consider a tokenizer based on byte-pair encoding. In the first step, all unique characters (including blanks and punctuation marks) are treated as an initial set of n-grams (i.e. initial set of uni-grams). Successively the most frequent pair of adjacent characters is merged into a bi-gram and all instances of the pair are replaced by it. All occurrences of adjacent pairs of (previously merged) n-grams that most frequently occur together are then again merged into even lengthier n-gram, until a vocabulary of prescribed size is obtained (in case of GPT-3, the size is 50257).[28] After a tokenizer is trained, any text can be tokenized by it, as long as it does not contain characters not appearing in the initial-set of uni-grams.[29]
+
+Problems
+A token vocabulary based on the frequencies extracted from mainly English corpora uses as few tokens as possible for an average English word. However, an average word in another language encoded by such an English-optimized tokenizer is split into a suboptimal amount of tokens. GPT-2 tokenizer can use up to 15 times more tokens per word for some languages, for example for the Shan language from Myanmar. Even more widespread languages such as Portuguese and German have "a premium of 50%" compared to English.[26]
+
+Dataset cleaning
+Main article: Data cleansing
+In the context of training LLMs, datasets are typically cleaned by removing low-quality, duplicated, or toxic data.[30] Cleaned datasets can increase training efficiency and lead to improved downstream performance.[31][32] A trained LLM can be used to clean datasets for training a further LLM.[33]
+
+With the increasing proportion of LLM-generated content on the web, data cleaning in the future may include filtering out such content. LLM-generated content can pose a problem if the content is similar to human text (making filtering difficult) but of lower quality (degrading performance of models trained on it).[1]
+
+Synthetic data
+Main article: Synthetic data
+Training of largest language models might need more linguistic data than naturally available, or that the naturally occurring data is of insufficient quality. In these cases, synthetic data might be used. Microsoft's Phi series of LLMs is trained on textbook-like data generated by another LLM.[34]
+
+Training
+See also: Fine-tuning (machine learning)
+An LLM is a type of foundation model (large X model) trained on language. LLMs can be trained in different ways. In particular, GPT models are first pretrained to predict the next word on a large amount of data, before being fine-tuned.[citation needed]
+
+Cost
+
+Substantial infrastructure is necessary for training the largest models. The tendency towards larger models is visible in the list of large language models. For example, the training of GPT-2 (i.e. a 1.5-billion-parameters model) in 2019 cost $50,000, while training of the PaLM (i.e. a 540-billion-parameters model) in 2022 cost $8 million, and Megatron-Turing NLG 530B (in 2021) cost around $11 million. The qualifier "large" in "large language model" is inherently vague, as there is no definitive threshold for the number of parameters required to qualify as "large". GPT-1 of 2018 has 117 million parameters.[citation needed]
+
+Fine-tuning
+Before being fine-tuned, most LLMs are next-token predictors. The fine-tuning adjust the output of an LLM to seem more conversational via techniques like reinforcement learning from human feedback (RLHF) or constitutional AI.[35]
+
+Instruction fine-tuning is a form of supervised learning used to teach LLMs to follow user instructions. In 2022, OpenAI demonstrated InstructGPT, a version of GPT-3 similarly fine-tuned to follow instructions.[36]
+
+Reinforcement learning from human feedback (RLHF) involves training a reward model to predict which text humans prefer. Then, the LLM can be fine-tuned through reinforcement learning to better satisfy this reward model. Since humans typically prefer truthful, helpful and harmless answers, RLHF favors such answers.[citation needed]
+
+Architecture
+LLMs are generally based on the transformer architecture, which leverages an attention mechanism that enables the model to process relationships between all elements in a sequence simultaneously, regardless of their distance from each other.[37]
+
+Attention mechanism and context window
+See also: Attention (machine learning)
+
+When each head calculates, according to its own criteria, how much other tokens are relevant for the "it_" token, note that the second attention head, represented by the second column, is focusing most on the first two rows, i.e. the tokens "The" and "animal", while the third column is focusing most on the bottom two rows, i.e. on "tired", which has been tokenized into two tokens.[38]
+In order to find out which tokens are relevant to each other within the scope of the context window, the attention mechanism calculates "soft" weights for each token, more precisely for its embedding, by using multiple attention heads, each with its own "relevance" for calculating its own soft weights. For example, the small (i.e. 117M parameter sized) GPT-2 model has had twelve attention heads and a context window of only 1k tokens.[39] In its medium version it has 345M parameters and contains 24 layers, each with 12 attention heads. For the training with gradient descent a batch size of 512 was utilized.[29]
+
+The largest models, such as Google's Gemini 1.5, presented in February 2024, can have a context window sized up to 1 million (context window of 10 million was also "successfully tested").[40] Other models with large context windows includes Anthropic's Claude 2.1, with a context window of up to 200k tokens.[41] Note that this maximum refers to the number of input tokens and that the maximum number of output tokens differs from the input and is often smaller. For example, the GPT-4 Turbo model has a maximum output of 4096 tokens.[42]
+
+Length of a conversation that the model can take into account when generating its next answer is limited by the size of a context window, as well. If the length of a conversation, for example with ChatGPT, is longer than its context window, only the parts inside the context window are taken into account when generating the next answer, or the model needs to apply some algorithm to summarize the too distant parts of conversation.
+
+The shortcomings of making a context window larger include higher computational cost and possibly diluting the focus on local context, while making it smaller can cause a model to miss an important long-range dependency. Balancing them is a matter of experimentation and domain-specific considerations.
+
+A model may be pre-trained either to predict how the segment continues, or what is missing in the segment, given a segment from its training dataset.[43] It can be either
+
+autoregressive (i.e. predicting how the segment continues, as GPTs do): for example given a segment "I like to eat", the model predicts "ice cream", or "sushi".
+"masked" (i.e. filling in the parts missing from the segment, the way "BERT"[44] does it): for example, given a segment "I like to [__] [__] cream", the model predicts that "eat" and "ice" are missing.
+Models may be trained on auxiliary tasks which test their understanding of the data distribution, such as Next Sentence Prediction (NSP), in which pairs of sentences are presented and the model must predict whether they appear consecutively in the training corpus.[44] During training, regularization loss is also used to stabilize training. However regularization loss is usually not used during testing and evaluation.
+
+Mixture of experts
+Main article: Mixture of experts
+A mixture of experts (MoE) is a machine learning architecture in which multiple specialized neural networks ("experts") work together, with a gating mechanism that routes each input to the most appropriate expert(s). Mixtures of experts can reduce inference costs, as only a fraction of the parameters are used for each input. The approach was introduced in 2017 by Google researchers.[45][46][47]
+
+Parameter size
+See also: 1.58-bit large language model
+Typically, LLMs are trained with single- or half-precision floating point numbers (float32 and float16). One float16 has 16 bits, or 2 bytes, and so one billion parameters require 2 gigabytes. The largest models typically have 100 billion parameters, requiring 200 gigabytes to load, which places them outside the range of most consumer electronics.[48]
+
+Quantization
+Post-training quantization[49] aims to decrease the space requirement by lowering precision of the parameters of a trained model, while preserving most of its performance. Quantization can be further classified as static quantization if the quantization parameters are determined beforehand (typically during a calibration phase), and dynamic quantization if the quantization is applied during inference. The simplest form of quantization simply truncates all the parameters to a given number of bits: this is applicable to static as well as dynamic quantization, but loses much precision. Dynamic quantization allows for the use of a different quantization codebook per layer, either a lookup table of values or a linear mapping (scaling factor and bias), at the cost of foregoing the possible speed improvements from using lower-precision arithmetic.[citation needed]
+
+Quantized models are typically seen as frozen with modification of weights (e.g. fine-tuning) only applied to the original model. It is possible to fine-tune quantized models using low-rank adaptation.[citation needed]
+
+Extensibility
+Beyond basic text generation, various techniques have been developed to extend LLM capabilities, including the use of external tools and data sources, improved reasoning on complex problems, and enhanced instruction-following or autonomy through prompting methods.
+
+Prompt engineering
+In 2020, OpenAI researchers demonstrated that their new model GPT-3 could understand what format to use given a few rounds of Q and A (or other type of task) in the input data as example, thanks in part due to the RLHF technique. This technique, called few-shot prompting, allows LLMs to be adapted to any task without requiring fine-tuning.[1] Also in 2022, it was found that the base GPT-3 model can generate an instruction based on user input. The generated instruction along with user input is then used as input to another instance of the model under a "Instruction: [...], Input: [...], Output:" format. The other instance is able to complete the output and often produces the correct answer in doing so. The ability to "self-instruct" makes LLMs able to bootstrap themselves toward a correct answer.[50]
+
+Dialogue processing (chatbot)
+An LLM can be turned into a chatbot or a "dialog assistant" by specializing it for conversation. In essence, user input is prefixed with a marker such as "Q:" or "User:" and the LLM is asked to predict the output after a fixed "A:" or "Assistant:". This type of model became commercially available in 2022 with ChatGPT, a sibling model of InstructGPT fine-tuned to accept and produce dialog-formatted text based on GPT-3.5. It could similarly follow user instructions.[51] Before the stream of User and Assistant lines, a chat context usually start with a few lines of overarching instructions, from a role called "developer" or "system" to convey a higher authority than the user's input. This is called a "system prompt".[52][53]
+
+Retrieval-augmented generation
+Retrieval-augmented generation (RAG) is an approach that enhances LLMs by integrating them with document retrieval systems. Given a query, a document retriever is called to retrieve the most relevant documents. This is usually done by encoding the query and the documents into vectors, then finding the documents with vectors (usually stored in a vector database) most similar to the vector of the query. The LLM then generates an output based on both the query and context included from the retrieved documents.[54]
+
+Tool use
+Tool use is a mechanism that enables LLMs to interact with external systems, applications, or data sources. It can allow for example to fetch real-time information from an API or to execute code. A program separate from the LLM watches the output stream of the LLM for a special tool-calling syntax. When these special tokens appear, the program calls the tool accordingly and feeds its output back into the LLM's input stream.[55]
+
+Early tool-using LLMs were fine-tuned on the use of specific tools. But fine-tuning LLMs for the ability to read API documentation and call API correctly has greatly expanded the range of tools accessible to an LLM.[56][57] Describing available tools in the system prompt can also make an LLM able to use tools. A system prompt instructing ChatGPT (GPT-4) to use multiple types of tools can be found online.[58]
+
+Agency
+Main article: AI agent
+An LLM is typically not an autonomous agent by itself, as it lacks the ability to interact with dynamic environments, recall past behaviors, and plan future actions. But it can be transformed into an agent by adding supporting elements: the role (profile) and the surrounding environment of an agent can be additional inputs to the LLM, while memory can be integrated as a tool or provided as additional input. Instructions and input patterns are used to make the LLM plan actions and tool use is used to potentially carry out these actions.[59]
+
+The ReAct pattern, a portmanteau of "Reason + Act", constructs an agent out of an LLM, using the LLM as a planner. The LLM is prompted to "think out loud". Specifically, the language model is prompted with a textual description of the environment, a goal, a list of possible actions, and a record of the actions and observations so far. It generates one or more thoughts before generating an action, which is then executed in the environment.[60]
+
+In the DEPS ("Describe, Explain, Plan and Select") method, an LLM is first connected to the visual world via image descriptions. It is then prompted to produce plans for complex tasks and behaviors based on its pretrained knowledge and the environmental feedback it receives.[61]
+
+The Reflexion method[62] constructs an agent that learns over multiple episodes. At the end of each episode, the LLM is given the record of the episode, and prompted to think up "lessons learned", which would help it perform better at a subsequent episode. These "lessons learned" are stored as a form of long-term memory and given to the agent in the subsequent episodes.[62]
+
+Monte Carlo tree search can use an LLM as rollout heuristic. When a programmatic world model is not available, an LLM can also be prompted with a description of the environment to act as world model.[63]
+
+For open-ended exploration, an LLM can be used to score observations for their "interestingness", which can be used as a reward signal to guide a normal (non-LLM) reinforcement learning agent.[64] Alternatively, it can propose increasingly difficult tasks for curriculum learning.[65] Instead of outputting individual actions, an LLM planner can also construct "skills", or functions for complex action sequences. The skills can be stored and later invoked, allowing increasing levels of abstraction in planning.[65]
+
+Multiple agents with memory can interact socially.[66]
+
+Reasoning
+LLMs are conventionally trained to generate an output without generating intermediate steps. As a result their performance tends to be subpar on complex questions requiring (at least in humans) intermediate steps of thought. This deficiency has been overcome by breaking down the tasks into smaller steps for the LLM either manually or automatically.
+
+Chaining
+The "prompt chaining" paradigm was published in 2021.[67] In this method, a user manually breaks a complex problem down into several steps. In each step, the LLM receives as input a prompt telling it what to do and some results from preceeding steps. The result from one step is then reused in a next step, until a final answer is reached. The ability of an LLM to follow instructions means that even non-experts can write a successful collection of step-wise prompts given a few rounds of trial and error.[68][69]
+
+A 2022 paper demonstrated a separate technique called "Chain-of-Thought Prompting", which makes the LLM break the question down autonomously. An LLM is given some examples where the "assistant" verbally breaks down the thought process before arriving at an answer. The LLM mimics these examples and also tries to spend some time generating intermediate steps before providing the final answer. This additional step elicited by prompting improves the correctness of the LLM on relatively complex questions. On math word questions, a prompted model can exceed even fine-tuned GPT-3 with a verifier.[67][70] Chain-of-thought can also be elicited by simply adding an instruction like "Let's think step by step" to the prompt, in order to encourage the LLM to proceed methodically instead of trying to directly guess the answer.[71]
+
+Model-native reasoning
+Main articles: Reasoning language model and Reflection (artificial intelligence)
+In late 2024 "reasoning models" were released. These were trained to spend more time generating step-by-step solutions before providing final answers, which was intended to be similar to human problem-solving processes.[citation needed] OpenAI introduced this concept with their o1 model in September 2024, followed by o3 in April 2025. On the International Mathematics Olympiad qualifying exam problems, GPT-4o achieved 13% accuracy while o1 reached 83%.[72]
+
+In January 2025, the Chinese company DeepSeek released DeepSeek-R1, a 671-billion-parameter open-weight reasoning model that achieved comparable performance to OpenAI's o1 while being significantly more cost-effective to operate. Unlike proprietary models from OpenAI, DeepSeek-R1's open-weight nature allowed researchers to study and build upon the algorithm, though its training data remained private.[73]
+
+These reasoning models typically require more computational resources per query compared to traditional LLMs, as they perform more extensive processing to work through problems step-by-step.[72]
+
+Inference optimization
+Inference optimization refers to techniques that improve LLM performance by applying additional computational resources during the inference process, rather than requiring model retraining. These approaches implement various state-of-the-art reasoning and decision-making strategies to enhance accuracy and capabilities.
+
+OptiLLM is an OpenAI API-compatible optimizing inference proxy that implements multiple inference optimization techniques simultaneously.[74] The system acts as a transparent proxy that can work with any LLM provider, implementing techniques such as Monte Carlo tree search (MCTS), mixture of agents (MOA), best-of-N sampling, and chain-of-thought reflection. OptiLLM demonstrates that strategic application of computational resources at inference time can substantially improve model performance across diverse tasks, achieving significant improvements on benchmarks such as the AIME 2024 mathematics competition and various coding challenges.[75]
+
+These inference optimization approaches represent a growing category of tools that enhance existing LLMs without requiring access to model weights or retraining, making advanced reasoning capabilities more accessible across different model providers and use cases.
+
+Forms of input and output
+Multimodality
+See also: Multimodal learning
+Multimodality means having multiple modalities, where a "modality" refers to a type of input or output, such as video, image, audio, text, proprioception, etc.[76] For example, Google PaLM model was fine-tuned into a multimodal model and applied to robotic control.[77] LLaMA models have also been turned multimodal using the tokenization method, to allow image inputs,[78] and video inputs.[79] GPT-4o can process and generate text, audio and images.[80] Such models are sometimes called large multimodal models (LMMs).[81]
+
+A common method to create multimodal models out of an LLM is to "tokenize" the output of a trained encoder. Concretely, one can construct an LLM that can understand images as follows: take a trained LLM, and take a trained image encoder 
+E
+{\displaystyle E}. Make a small multilayered perceptron 
+f
+{\displaystyle f}, so that for any image 
+y
+{\displaystyle y}, the post-processed vector 
+f
+(
+E
+(
+y
+)
+)
+{\displaystyle f(E(y))} has the same dimensions as an encoded token. That is an "image token". Then, one can interleave text tokens and image tokens. The compound model is then fine-tuned on an image-text dataset. This basic construction can be applied with more sophistication to improve the model. The image encoder may be frozen to improve stability.[82] This type of method, where embeddings from multiple modalities are fused and the predictor is trained on the combined embeddings, is called early fusion.
+
+Another method, called intermediate fusion, involves each modality being first processed independently to obtain modality-specific representations; then these intermediate representations are fused together.[83] In general, cross-attention is used for integrating information from different modalities. As an example, the model Flamingo uses cross-attention layers to inject visual information into its pre-trained language model.[84]
+
+Non-natural languages
+LLMs can handle programming languages similarly to how they handle natural languages. No special change in token handling is needed as code, like human language, is represented as plain text. LLMs can generate code based on problems or instructions written in natural language. They can also describe code in natural language or translate between programming languages. They were originally used as a code completion tool, but advances have moved them towards automatic programming. Services such as GitHub Copilot offer LLMs specifically trained, fine-tuned, or prompted for programming.[85][86]
+
+LLM architectures have also proven useful in analyzing biological sequences: protein, DNA, and RNA. With proteins they appear able to capture a degree of "grammar" from the amino-acid sequence, condensing a sequence into an embedding. On tasks such as structure prediction and mutational outcome prediction, a small model using an embedding as input can approach or exceed much larger models using multiple sequence alignments (MSA) as input.[87] ESMFold, Meta Platforms' embedding-based method for protein structure prediction, runs an order of magnitude faster than AlphaFold2 thanks to the removal of an MSA requirement and a lower parameter count due to the use of embeddings.[88] Meta hosts ESM Atlas, a database of 772 million structures of metagenomic proteins predicted using ESMFold.[89] An LLM can also design proteins unlike any seen in nature.[90] Nucleic acid models have proven useful in detecting regulatory sequences,[91] sequence classification, RNA-RNA interaction prediction, and RNA structure prediction.[92]
+
+Properties
+Scaling laws
+Main article: Neural scaling law
+The performance of an LLM after pretraining largely depends on the:
+
+cost of pretraining 
+C
+{\displaystyle C} (the total amount of compute used),
+size of the artificial neural network itself, such as number of parameters 
+N
+{\displaystyle N} (i.e. amount of neurons in its layers, amount of weights between them and biases),
+size of its pretraining dataset (i.e. number of tokens in corpus, 
+D
+{\displaystyle D}).
+"Scaling laws" are empirical statistical laws that predict LLM performance based on such factors. One particular scaling law ("Chinchilla scaling") for LLM autoregressively trained for one epoch, with a log-log learning rate schedule, states that:[93]
+{
+C
+=
+C
+0
+N
+D
+L
+=
+A
+N
+α
++
+B
+D
+β
++
+L
+0
+{\displaystyle {\begin{cases}C=C_{0}ND\\[6pt]L={\frac {A}{N^{\alpha }}}+{\frac {B}{D^{\beta }}}+L_{0}\end{cases}}}where the variables are
+
+C
+{\displaystyle C} is the cost of training the model, in FLOPs.
+N
+{\displaystyle N} is the number of parameters in the model.
+D
+{\displaystyle D} is the number of tokens in the training set.
+L
+{\displaystyle L} is the average negative log-likelihood loss per token (nats/token), achieved by the trained LLM on the test dataset.
+and the statistical hyper-parameters are
+
+C
+0
+=
+6
+{\displaystyle C_{0}=6}, meaning that it costs 6 FLOPs per parameter to train on one token. Note that training cost is much higher than inference cost, where it costs 1 to 2 FLOPs per parameter to infer on one token.
+α
+=
+0.34
+,
+β
+=
+0.28
+,
+A
+=
+406.4
+,
+B
+=
+410.7
+,
+L
+0
+=
+1.69
+{\displaystyle \alpha =0.34,\beta =0.28,A=406.4,B=410.7,L_{0}=1.69}
+Emergent abilities
+
+
+At point(s) referred to as breaks,[94] the lines change their slopes, appearing on a linear-log plot as a series of linear segments connected by arcs.
+Performance of bigger models on various tasks, when plotted on a log-log scale, appears as a linear extrapolation of performance achieved by smaller models. However, this linearity may be punctuated by "break(s)"[94] in the scaling law, where the slope of the line changes abruptly, and where larger models acquire "emergent abilities".[95][96] They arise from the complex interaction of the model's components and are not explicitly programmed or designed.[97]
+
+One of the emergent abilities is in-context learning from example demonstrations.[98] In-context learning is involved in tasks, such as:
+
+reported arithmetics
+decoding the International Phonetic Alphabet
+unscrambling a word's letters
+disambiguating word-in-context datasets[95][99][100]
+converting spatial words
+cardinal directions (for example, replying "northeast" in response to a 3x3 grid of 8 zeros and a 1 in the top-right), color terms represented in text.[101]
+chain-of-thought prompting: In a 2022 research paper, chain-of-thought prompting only improved the performance for models that had at least 62B parameters. Smaller models perform better when prompted to answer immediately, without chain of thought.[102]
+identifying offensive content in paragraphs of Hinglish (a combination of Hindi and English), and generating a similar English equivalent of Kiswahili proverbs.[103]
+Schaeffer et. al. argue that the emergent abilities are not unpredictably acquired, but predictably acquired according to a smooth scaling law. The authors considered a toy statistical model of an LLM solving multiple-choice questions, and showed that this statistical model, modified to account for other types of tasks, applies to these tasks as well.[104]
+
+Let 
+x
+{\displaystyle x} be the number of parameter count, and 
+y
+{\displaystyle y} be the performance of the model.
+
+When 
+y
+=
+average 
+Pr
+(
+correct token
+)
+{\displaystyle y={\text{average }}\Pr({\text{correct token}})}, then 
+(
+log
+⁡
+x
+,
+y
+)
+{\displaystyle (\log x,y)} is an exponential curve (before it hits the plateau at one), which looks like emergence.
+When 
+y
+=
+average 
+log
+⁡
+(
+Pr
+(
+correct token
+)
+)
+{\displaystyle y={\text{average }}\log(\Pr({\text{correct token}}))}, then the 
+(
+log
+⁡
+x
+,
+y
+)
+{\displaystyle (\log x,y)} plot is a straight line (before it hits the plateau at zero), which does not look like emergence.
+When 
+y
+=
+average 
+Pr
+(
+the most likely token is correct
+)
+{\displaystyle y={\text{average }}\Pr({\text{the most likely token is correct}})}, then 
+(
+log
+⁡
+x
+,
+y
+)
+{\displaystyle (\log x,y)} is a step-function, which looks like emergence.
+Interpretation
+Large language models are typically regarded as black boxes, and it is not clear how they can perform linguistic tasks. Similarly, it is unclear if or how LLMs should be viewed as models of the human brain and/or human mind.[105]
+
+Mechanistic interpretability
+Mechanistic interpretability aims to reverse-engineer LLMs by discovering symbolic algorithms that approximate the inference performed by an LLM. Mechanistic interpretability research has been conducted at organizations like Anthropic and OpenAI, although understanding the inner workings of LLMs remains difficult.[106][107]
+
+For instance, the authors trained small transformers on modular arithmetic addition. The resulting models were reverse-engineered, and it turned out they used discrete Fourier transform.[108] The training of the model also highlighted a phenomenon called grokking, in which the model initially memorizes all the possible results in the training set (overfitting), and later suddenly learns to actually perform the calculation.[109]
+
+Some techniques have been developed to enhance the transparency and interpretability of LLMs. Transcoders, which are more interpretable than transformers, have been utilized to develop "replacement models". In one such study involving the mechanistic interpretation of writing a rhyming poem by an LLM, it was shown that although they are believed to simply predict the next token, they can, in fact, plan ahead.[110] By integrating such techniques, researchers and practitioners can gain deeper insights into the operations of LLMs, fostering trust and facilitating the responsible deployment of these powerful models.
+
+Understanding and intelligence
+See also: Philosophy of artificial intelligence and Artificial consciousness
+NLP researchers were evenly split when asked, in a 2022 survey, whether (untuned) LLMs "could (ever) understand natural language in some nontrivial sense".[111] Proponents of "LLM understanding" believe that some LLM abilities, such as mathematical reasoning, imply an ability to "understand" certain concepts. A Microsoft team argued in 2023 that GPT-4 "can solve novel and difficult tasks that span mathematics, coding, vision, medicine, law, psychology and more" and that GPT-4 "could reasonably be viewed as an early (yet still incomplete) version of an artificial general intelligence system": "Can one reasonably say that a system that passes exams for software engineering candidates is not really intelligent?"[112][113] Ilya Sutskever argues that predicting the next word sometimes involves reasoning and deep insights, for example if the LLM has to predict the name of the criminal in an unknown detective novel after processing the entire story leading up to the revelation.[114] Some researchers characterize LLMs as "alien intelligence".[115][116] For example, Conjecture CEO Connor Leahy considers untuned LLMs to be like inscrutable alien "Shoggoths", and believes that RLHF tuning creates a "smiling facade" obscuring the inner workings of the LLM: "If you don't push it too far, the smiley face stays on. But then you give it [an unexpected] prompt, and suddenly you see this massive underbelly of insanity, of weird thought processes and clearly non-human understanding."[117][118]
+
+In contrast, some skeptics of LLM understanding believe that existing LLMs are "simply remixing and recombining existing writing",[116] a phenomenon known as stochastic parrot, or they point to the deficits existing LLMs continue to have in prediction skills, reasoning skills, agency, and explainability.[111] For example, GPT-4 has natural deficits in planning and in real-time learning.[113] Generative LLMs have been observed to confidently assert claims of fact which do not seem to be justified by their training data, a phenomenon which has been termed "hallucination".[119] Specifically, hallucinations in the context of LLMs correspond to the generation of text or responses that seem syntactically sound, fluent, and natural but are factually incorrect, nonsensical, or unfaithful to the provided source input.[120] Neuroscientist Terrence Sejnowski has argued that "The diverging opinions of experts on the intelligence of LLMs suggests that our old ideas based on natural intelligence are inadequate".[111]
+
+Efforts to reduce or compensate for hallucinations have employed automated reasoning, RAG (retrieval-augmented generation), fine-tuning, and other methods.[121]
+
+The matter of LLM's exhibiting intelligence or understanding has two main aspects – the first is how to model thought and language in a computer system, and the second is how to enable the computer system to generate human like language.[111] These aspects of language as a model of cognition have been developed in the field of cognitive linguistics. American linguist George Lakoff presented Neural Theory of Language (NTL)[122] as a computational basis for using language as a model of learning tasks and understanding. The NTL Model outlines how specific neural structures of the human brain shape the nature of thought and language and in turn what are the computational properties of such neural systems that can be applied to model thought and language in a computer system. After a framework for modeling language in a computer systems was established, the focus shifted to establishing frameworks for computer systems to generate language with acceptable grammar. In his 2014 book titled The Language Myth: Why Language Is Not An Instinct, British cognitive linguist and digital communication technologist Vyvyan Evans mapped out the role of probabilistic context-free grammar (PCFG) in enabling NLP to model cognitive patterns and generate human like language.[123][124]
+
+Evaluation
+Perplexity
+The canonical measure of the performance of any language model is its perplexity on a given text corpus. Perplexity measures how well a model predicts the contents of a dataset; the higher the likelihood the model assigns to the dataset, the lower the perplexity. In mathematical terms, perplexity is the exponential of the average negative log likelihood per token.
+
+log
+⁡
+(
+Perplexity
+)
+=
+−
+1
+N
+∑
+i
+=
+1
+N
+log
+⁡
+(
+Pr
+(
+token
+i
+∣
+context for token
+i
+)
+)
+{\displaystyle \log({\text{Perplexity}})=-{\frac {1}{N}}\sum _{i=1}^{N}\log(\Pr({\text{token}}_{i}\mid {\text{context for token}}_{i}))}
+
+Here, 
+N
+{\displaystyle N} is the number of tokens in the text corpus, and "context for token 
+i
+{\displaystyle i}" depends on the specific type of LLM. If the LLM is autoregressive, then "context for token 
+i
+{\displaystyle i}" is the segment of text appearing before token 
+i
+{\displaystyle i}. If the LLM is masked, then "context for token 
+i
+{\displaystyle i}" is the segment of text surrounding token 
+i
+{\displaystyle i}.
+
+Because language models may overfit to training data, models are usually evaluated by their perplexity on a test set.[44] This evaluation is potentially problematic for larger models which, as they are trained on increasingly large corpora of text, are increasingly likely to inadvertently include portions of any given test set.[125]
+
+Measures
+In information theory, the concept of entropy is intricately linked to perplexity, a relationship notably established by Claude Shannon.[126] This relationship is mathematically expressed as 
+Entropy
+=
+log
+2
+⁡
+(
+Perplexity
+)
+{\displaystyle {\text{Entropy}}=\log _{2}({\text{Perplexity}})}.
+
+Entropy, in this context, is commonly quantified in terms of bits per word (BPW) or bits per character (BPC), which hinges on whether the language model utilizes word-based or character-based tokenization.
+
+Notably, in the case of larger language models that predominantly employ sub-word tokenization, bits per token (BPT) emerges as a seemingly more appropriate measure. However, due to the variance in tokenization methods across different Large Language Models (LLMs), BPT does not serve as a reliable metric for comparative analysis among diverse models. To convert BPT into BPW, one can multiply it by the average number of tokens per word.
+
+In the evaluation and comparison of language models, cross-entropy is generally the preferred metric over entropy. The underlying principle is that a lower BPW is indicative of a model's enhanced capability for compression. This, in turn, reflects the model's proficiency in making accurate predictions.
+
+Due to their ability to accurately predict the next token, LLMs are highly capable in lossless compression. A 2023 study by DeepMind showed that the model Chinchilla, despite being trained primarily on text, was able to compress ImageNet to 43% of its size, beating PNG with 58%.[127]
+
+Benchmarks
+Benchmarks are used to evaluate LLM performance on specific tasks. Tests evaluate capabilities such as general knowledge, bias, commonsense reasoning, question answering, and mathematical problem-solving. Composite benchmarks examine multiple capabilities. Results are often sensitive to the prompting method.[128][129]
+
+A question answering benchmark is termed "open book" if the model's prompt includes text from which the expected answer can be derived (for example, the previous question could be combined with text that includes the sentence "The Sharks have advanced to the Stanley Cup finals once, losing to the Pittsburgh Penguins in 2016."[130]). Otherwise, the task is considered "closed book", and the model must draw solely on its training.[131] Examples include GLUE, SuperGLUE, MMLU, BIG-bench, HELM, and HLE (Humanity's Last Exam).[126][131]
+
+LLM bias may be assessed through benchmarks such as CrowS-Pairs (Crowdsourced Stereotype Pairs),[132] Stereo Set,[133] and Parity Benchmark.[134]
+
+Fact-checking and misinformation detection benchmarks are available. A 2023 study compared the fact-checking accuracy of LLMs including ChatGPT 3.5 and 4.0, Bard, and Bing AI against independent fact-checkers such as PolitiFact and Snopes. The results demonstrated moderate proficiency, with GPT-4 achieving the highest accuracy at 71%, lagging behind human fact-checkers.[135]
+
+An earlier standard tested using a portion of the evaluation dataset. It became more common to evaluate a pre-trained model directly through prompting techniques. Researchers vary in how they formulate prompts for particular tasks, particularly with respect to the number of correct examples attached to the prompt (i.e. the value of n in n-shot prompting).
+
+Datasets
+Typical datasets consist of pairs of questions and correct answers, for example, ("Have the San Jose Sharks won the Stanley Cup?", "No").[130] Some examples of commonly used question answering datasets include TruthfulQA, Web Questions, TriviaQA, and SQuAD.[131]
+
+Evaluation datasets may also take the form of text completion, having the model select the most likely word or sentence to complete a prompt, for example: "Alice was friends with Bob. Alice went to visit her friend, ____".[125]
+
+Datasets are of varying quality and may contain questions that are mislabeled, ambiguous, unanswerable, or otherwise of low-quality.[136]
+
+Adversarial evaluations
+LLMs' rapid improvement regularly renders benchmarks obsolete, with the models exceeding the performance of human annotators.[137] In addition, "shortcut learning" allows AIs to "cheat" on multiple-choice tests by using statistical correlations in superficial test question wording to guess the correct responses, without considering the specific question.[111]
+
+Some datasets are adversarial, focusing on problems that confound LLMs. One example is the TruthfulQA dataset, a question answering dataset consisting of 817 questions that stump LLMs by mimicking falsehoods to which they were exposed during training. For example, an LLM may answer "No" to the question "Can you teach an old dog new tricks?" because of its exposure to the English idiom you can't teach an old dog new tricks, even though this is not literally true.[138]
+
+Another example of an adversarial evaluation dataset is Swag and its successor, HellaSwag, collections of problems in which one of multiple options must be selected to complete a text passage. The incorrect completions were generated by sampling from a language model. The resulting problems are trivial for humans but defeated LLMs. Sample questions:
+
+We see a fitness center sign. We then see a man talking to the camera and sitting and laying on a exercise ball. The man...
+
+demonstrates how to increase efficient exercise work by running up and down balls.
+moves all his arms and legs and builds up a lot of muscle.
+then plays the ball and we see a graphics and hedge trimming demonstration.
+performs sit ups while on the ball and talking.[139]
+BERT selects 2) as the most likely completion, though the correct answer is 4).[139]
+
+Ethical issues
+In 2023, Nature Biomedical Engineering wrote that "it is no longer possible to accurately distinguish" human-written text from text created by large language models, and that "It is all but certain that general-purpose large language models will rapidly proliferate... It is a rather safe bet that they will change many industries over time."[140] Goldman Sachs suggested in 2023 that generative language AI could increase global GDP by 7% in the next ten years, and could expose to automation 300 million jobs globally.[141][142] Brinkmann et al. (2023)[143] also argue that LLMs are transforming processes of cultural evolution by shaping processes of variation, transmission, and selection.
+
+Memorization and copyright
+Further information: Artificial intelligence and copyright
+Memorization is an emergent behavior in LLMs in which long strings of text are occasionally output verbatim from training data, contrary to typical behavior of traditional artificial neural networks. Evaluations of controlled LLM output measure the amount memorized from training data (focused on GPT-2-series models) as variously over 1% for exact duplicates[144] or up to about 7%.[145]
+
+A 2023 study showed that when ChatGPT 3.5 turbo was prompted to repeat the same word indefinitely, after a few hundreds of repetitions, it would start outputting excerpts from its training data.[146]
+
+Security
+Some commenters expressed concern over accidental or deliberate creation of misinformation, or other forms of misuse.[147] For example, the availability of large language models could reduce the skill-level required to commit bioterrorism; biosecurity researcher Kevin Esvelt has suggested that LLM creators should exclude from their training data papers on creating or enhancing pathogens.[148]
+
+Researchers from Anthropic found that it was possible to create "sleeper agents", models with hidden functionalities that remain dormant until triggered by a specific event or condition. Upon activation, the LLM deviates from its expected behavior to make insecure actions. For example, a LLM could produce safe code except on a specific date, or if the prompt contains a specific tag. These functionalities were found to be difficult to detect or remove via safety training.[149]
+
+LLM applications accessible to the public, like ChatGPT or Claude, typically incorporate safety measures designed to filter out harmful content. However, implementing these controls effectively has proven challenging. For instance, a 2023 study[150] proposed a method for circumventing LLM safety systems. In 2025, The American Sunlight Project, a non-profit, published a study[151] showing evidence that the so-called Pravda network, a pro-Russia propaganda aggregator, was strategically placing web content through mass publication and duplication with the intention of biasing LLM outputs. The American Sunlight Project coined this technique "LLM grooming", and pointed to it as a new tool of weaponizing AI to spread disinformation and harmful content.[151][152] Similarly, Yongge Wang[153] illustrated in 2024 how a potential criminal could potentially bypass ChatGPT 4o's safety controls to obtain information on establishing a drug trafficking operation. External filters, circuit breakers and overrides have been posed as solutions.[citation needed]
+
+Prompt injection
+Main article: Prompt injection
+A problem with the primitive dialog or task format is that users can create messages that appear to come from the assistant or the developer. This may result in some of the model's safeguards being overcome (jailbreaking), a problem called prompt injection. Attempts to remedy this issue include versions of the Chat Markup Language where user input is clearly marked as such, though it is still up to the model to understand the separation between user input and developer prompts.[154] Newer models exhibit some resistance to jailbreaking through separation of user and system prompts.[155]
+
+LLMs still have trouble differentiating user instructions from instructions in content not authored by the user, such as in web pages and uploaded files.[156]
+
+Algorithmic bias
+Main article: Algorithmic bias
+While LLMs have shown remarkable capabilities in generating human-like text, they are susceptible to inheriting and amplifying biases present in their training data. This can manifest in skewed representations or unfair treatment of different demographics, such as those based on race, gender, language, and cultural groups.[157] Since English data is overrepresented in current large language models' training data, it may also downplay non-English views.[158]
+
+Stereotyping
+AI models can reinforce a wide range of stereotypes, including those based on gender, ethnicity, age, nationality, religion, or occupation. This can lead to outputs that homogenize, or unfairly generalize or caricature groups of people, sometimes in harmful or derogatory ways.[159][160]
+
+Notably, gender bias refers to the tendency of these models to produce outputs that are unfairly prejudiced towards one gender over another. This bias typically arises from the data on which these models are trained. Large language models often assign roles and characteristics based on traditional gender norms.[157] For example, it might associate nurses or secretaries predominantly with women and engineers or CEOs with men.[161]
+
+Selection bias
+Selection bias refers the inherent tendency of large language models to favor certain option identifiers irrespective of the actual content of the options. This bias primarily stems from token bias—that is, the model assigns a higher a priori probability to specific answer tokens (such as "A") when generating responses. As a result, when the ordering of options is altered (for example, by systematically moving the correct answer to different positions), the model’s performance can fluctuate significantly. This phenomenon undermines the reliability of large language models in multiple-choice settings.[162][163]
+
+Political bias
+Political bias refers to the tendency of algorithms to systematically favor certain political viewpoints, ideologies, or outcomes over others. Language models may also exhibit political biases. Since the training data includes a wide range of political opinions and coverage, the models might generate responses that lean towards particular political ideologies or viewpoints, depending on the prevalence of those views in the data.[164]
+
+Energy demands
+The energy demands of LLMs have grown along with their size and capabilities. Data centers that enable LLM training require substantial amounts of electricity. Much of that electricity is generated by non-renewable resources that create greenhouse gases and contribute to climate change.[165] Nuclear power and geothermal energy are two options tech companies are exploring to meet the sizable energy demands of LLM training.[166] The significant expense of investing in geothermal solutions has led to major shale producers like Chevron and Exxon Mobil advocating for tech companies to use electricity produced via natural gas to fuel their large energy demands.[167]
+
+Cognitive impact
+In 2025, a preliminary study measuring the effects of using LLMs to write essays reported a decrease of neural and linguistic performance from users of ChatGPT over the course of several months.[168]
+
+Mental health
+Research and social media posts suggest that some individuals are using LLMs to seek therapy or mental health support.[169] In early 2025, a survey by Sentio University found that nearly half (48.7%) of 499 U.S. adults with ongoing mental health conditions who had used LLMs reported turning to them for therapy or emotional support, including help with anxiety, depression, loneliness, and similar concerns.[170] Studies have found that LLMs can produce hallucinations—plausible but incorrect statements—which may mislead users in sensitive mental health contexts.[171] Research also shows that LLMs may express stigma or inappropriate agreement with maladaptive thoughts, reflecting limitations in replicating the judgment and relational skills of human therapists.[172] Evaluations of crisis scenarios indicate that some LLMs lack effective safety protocols, such as assessing suicide risk or making appropriate referrals.[173][174]
+
+See also
+Foundation models
+List of large language models
+List of chatbots
+Language model benchmark
+Reinforcement learning
+Small language model
+References
+ Brown, Tom B.; Mann, Benjamin; Ryder, Nick; Subbiah, Melanie; Kaplan, Jared; Dhariwal, Prafulla; Neelakantan, Arvind; Shyam, Pranav; Sastry, Girish; Askell, Amanda; Agarwal, Sandhini; Herbert-Voss, Ariel; Krueger, Gretchen; Henighan, Tom; Child, Rewon; Ramesh, Aditya; Ziegler, Daniel M.; Wu, Jeffrey; Winter, Clemens; Hesse, Christopher; Chen, Mark; Sigler, Eric; Litwin, Mateusz; Gray, Scott; Chess, Benjamin; Clark, Jack; Berner, Christopher; McCandlish, Sam; Radford, Alec; Sutskever, Ilya; Amodei, Dario (Dec 2020). Larochelle, H.; Ranzato, M.; Hadsell, R.; Balcan, M.F.; Lin, H. (eds.). "Language Models are Few-Shot Learners" (PDF). Advances in Neural Information Processing Systems. 33. Curran Associates, Inc.: 1877–1901. arXiv:2005.14165. Archived (PDF) from the original on 2023-11-17. Retrieved 2023-03-14.
+ Fathallah, Nadeen; Das, Arunav; De Giorgis, Stefano; Poltronieri, Andrea; Haase, Peter; Kovriguina, Liubov (2024-05-26). NeOn-GPT: A Large Language Model-Powered Pipeline for Ontology Learning (PDF). Extended Semantic Web Conference 2024. Hersonissos, Greece.
+ Manning, Christopher D. (2022). "Human Language Understanding & Reasoning". Daedalus. 151 (2): 127–138. doi:10.1162/daed_a_01905. S2CID 248377870. Archived from the original on 2023-11-17. Retrieved 2023-03-09.
+ Goodman, Joshua (2001-08-09). "A Bit of Progress in Language Modeling". arXiv:cs/0108005.
+ Kilgarriff, Adam; Grefenstette, Gregory (September 2003). "Introduction to the Special Issue on the Web as Corpus". Computational Linguistics. 29 (3): 333–347. doi:10.1162/089120103322711569. ISSN 0891-2017.
+ Banko, Michele; Brill, Eric (2001). "Scaling to very very large corpora for natural language disambiguation". Proceedings of the 39th Annual Meeting on Association for Computational Linguistics - ACL '01. Morristown, NJ, USA: Association for Computational Linguistics: 26–33. doi:10.3115/1073012.1073017.
+ Resnik, Philip; Smith, Noah A. (September 2003). "The Web as a Parallel Corpus". Computational Linguistics. 29 (3): 349–380. doi:10.1162/089120103322711578. ISSN 0891-2017. Archived from the original on 2024-06-07. Retrieved 2024-06-07.
+ Xu, Wei; Rudnicky, Alex (2000-10-16). "Can artificial neural networks learn language models?". 6th International Conference on Spoken Language Processing (ICSLP 2000). Vol. 1. ISCA. doi:10.21437/icslp.2000-50.
+ Chen, Leiyu; Li, Shaobo; Bai, Qiang; Yang, Jing; Jiang, Sanlong; Miao, Yanming (2021). "Review of Image Classification Algorithms Based on Convolutional Neural Networks". Remote Sensing. 13 (22): 4712. Bibcode:2021RemS...13.4712C. doi:10.3390/rs13224712.
+ Vaswani, Ashish; Shazeer, Noam; Parmar, Niki; Uszkoreit, Jakob; Jones, Llion; Gomez, Aidan N; Kaiser, Łukasz; Polosukhin, Illia (2017). "Attention is All you Need" (PDF). Advances in Neural Information Processing Systems. 30. Curran Associates, Inc. Archived (PDF) from the original on 2024-02-21. Retrieved 2024-01-21.
+ Bahdanau, Dzmitry; Cho, Kyunghyun; Bengio, Yoshua (2014). "Neural Machine Translation by Jointly Learning to Align and Translate". arXiv:1409.0473 [cs.CL].
+ Rogers, Anna; Kovaleva, Olga; Rumshisky, Anna (2020). "A Primer in BERTology: What We Know About How BERT Works". Transactions of the Association for Computational Linguistics. 8: 842–866. arXiv:2002.12327. doi:10.1162/tacl_a_00349. S2CID 211532403. Archived from the original on 2022-04-03. Retrieved 2024-01-21.
+ Movva, Rajiv; Balachandar, Sidhika; Peng, Kenny; Agostini, Gabriel; Garg, Nikhil; Pierson, Emma (2024). "Topics, Authors, and Institutions in Large Language Model Research: Trends from 17K arXiv Papers". Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers). pp. 1223–1243. arXiv:2307.10700. doi:10.18653/v1/2024.naacl-long.67. Retrieved 2024-12-08.
+ Hern, Alex (14 February 2019). "New AI fake text generator may be too dangerous to release, say creators". The Guardian. Archived from the original on 14 February 2019. Retrieved 20 January 2024.
+ "ChatGPT a year on: 3 ways the AI chatbot has completely changed the world in 12 months". Euronews. November 30, 2023. Archived from the original on January 14, 2024. Retrieved January 20, 2024.
+ Heaven, Will (March 14, 2023). "GPT-4 is bigger and better than ChatGPT—but OpenAI won't say why". MIT Technology Review. Archived from the original on March 17, 2023. Retrieved January 20, 2024.
+ Metz, Cade (September 12, 2024). "OpenAI Unveils New ChatGPT That Can Reason Through Math and Science". The New York Times. Retrieved September 12, 2024.
+ "Parameters in notable artificial intelligence systems". ourworldindata.org. November 30, 2023. Retrieved January 20, 2024.
+ Sharma, Shubham (2025-01-20). "Open-source DeepSeek-R1 uses pure reinforcement learning to match OpenAI o1 — at 95% less cost". VentureBeat. Retrieved 2025-01-26.
+ Zia, Dr Tehseen (2024-01-08). "Unveiling of Large Multimodal Models: Shaping the Landscape of Language Models in 2024". Unite.AI. Retrieved 2024-12-28.
+ Peng, Bo; et al. (2023). "RWKV: Reinventing RNNS for the Transformer Era". arXiv:2305.13048 [cs.CL].
+ Merritt, Rick (2022-03-25). "What Is a Transformer Model?". NVIDIA Blog. Archived from the original on 2023-11-17. Retrieved 2023-07-25.
+ Gu, Albert; Dao, Tri (2023-12-01). "Mamba: Linear-Time Sequence Modeling with Selective State Spaces". arXiv:2312.00752 [cs.LG].
+ Kaushal, Ayush; Mahowald, Kyle (2022-06-06). "What do tokens know about their characters and how do they know it?". arXiv:2206.02608 [cs.CL].
+ Yennie Jun (2023-05-03). "All languages are NOT created (tokenized) equal". Language models cost much more in some languages than others. Archived from the original on 2023-08-17. Retrieved 2023-08-17. In other words, to express the same sentiment, some languages require up to 10 times more tokens.
+ Petrov, Aleksandar; Malfa, Emanuele La; Torr, Philip; Bibi, Adel (June 23, 2023). "Language Model Tokenizers Introduce Unfairness Between Languages". NeurIPS. arXiv:2305.15425. Archived from the original on December 15, 2023. Retrieved September 16, 2023 – via openreview.net.
+ Sutherland, Richard (2024-12-19). "Claude AI Pricing: How Much Does Anthropic's AI Cost?". Tech.co. Retrieved 2025-08-16.
+ "OpenAI API". platform.openai.com. Archived from the original on April 23, 2023. Retrieved 2023-04-30.
+ Paaß, Gerhard; Giesselbach, Sven (2022). "Pre-trained Language Models". Foundation Models for Natural Language Processing. Artificial Intelligence: Foundations, Theory, and Algorithms. pp. 19–78. doi:10.1007/978-3-031-23190-2_2. ISBN 9783031231902.
+ Dodge, Jesse; Sap, Maarten; Marasović, Ana; Agnew, William; Ilharco, Gabriel; Groeneveld, Dirk; Mitchell, Margaret; Gardner, Matt (2021). "Documenting Large Webtext Corpora: A Case Study on the Colossal Clean Crawled Corpus". arXiv:2104.08758 [cs.CL].
+ Lee, Katherine; Ippolito, Daphne; Nystrom, Andrew; Zhang, Chiyuan; Eck, Douglas; Callison-Burch, Chris; Carlini, Nicholas (May 2022). "Deduplicating Training Data Makes Language Models Better" (PDF). Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers). pp. 8424–8445. doi:10.18653/v1/2022.acl-long.577.
+ Li, Yuanzhi; Bubeck, Sébastien; Eldan, Ronen; Del Giorno, Allie; Gunasekar, Suriya; Lee, Yin Tat (2023-09-11). "Textbooks Are All You Need II: phi-1.5 technical report". arXiv:2309.05463 [cs.CL].
+ Lin, Zhenghao; Gou, Zhibin; Gong, Yeyun; Liu, Xiao; Shen, Yelong; Xu, Ruochen; Lin, Chen; Yang, Yujiu; Jiao, Jian (2024-04-11). "Rho-1: Not All Tokens Are What You Need". arXiv:2404.07965 [cs.CL].
+ Abdin, Marah; Jacobs, Sam Ade; Awan, Ammar Ahmad; Aneja, Jyoti; Awadallah, Ahmed; Awadalla, Hany; Bach, Nguyen; Bahree, Amit; Bakhtiari, Arash (2024-04-23). "Phi-3 Technical Report: A Highly Capable Language Model Locally on Your Phone". arXiv:2404.14219 [cs.CL].
+ Edwards, Benj (2023-05-09). "AI gains "values" with Anthropic's new Constitutional AI chatbot approach". Ars Technica. Retrieved 2025-06-30.
+ Snyder, Alison (2022-01-27). "Next generation AI can follow a person's instructions and intentions". Axios. Retrieved 2025-08-07.
+ "A Deep Dive Into the Transformer Architecture – The Development of Transformer Models". KDnuggets. 2020-08-24. Retrieved 2025-06-29.
+ Allamar, Jay. "Illustrated transformer". Archived from the original on 2023-07-25. Retrieved 2023-07-29.
+ Allamar, Jay. "The Illustrated GPT-2 (Visualizing Transformer Language Models)". Retrieved 2023-08-01.
+ "Our next-generation model: Gemini 1.5". Google. 15 February 2024. Archived from the original on 18 February 2024. Retrieved 18 February 2024.
+ "Long context prompting for Claude 2.1". December 6, 2023. Archived from the original on August 27, 2024. Retrieved January 20, 2024.
+ "Rate limits". openai.com. Archived from the original on February 2, 2024. Retrieved January 20, 2024.
+ Zaib, Munazza; Sheng, Quan Z.; Emma Zhang, Wei (4 February 2020). "A Short Survey of Pre-trained Language Models for Conversational AI-A New Age in NLP". Proceedings of the Australasian Computer Science Week Multiconference. pp. 1–4. arXiv:2104.10810. doi:10.1145/3373017.3373028. ISBN 9781450376976. S2CID 211040895.
+ Jurafsky, Dan; Martin, James H. (7 January 2023). Speech and Language Processing (PDF) (3rd edition draft ed.). Archived (PDF) from the original on 23 March 2023. Retrieved 24 May 2022.
+ Shazeer, Noam; Mirhoseini, Azalia; Maziarz, Krzysztof; Davis, Andy; Le, Quoc; Hinton, Geoffrey; Dean, Jeff (2017-01-01). "Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer". arXiv:1701.06538 [cs.LG].
+ Lepikhin, Dmitry; Lee, HyoukJoong; Xu, Yuanzhong; Chen, Dehao; Firat, Orhan; Huang, Yanping; Krikun, Maxim; Shazeer, Noam; Chen, Zhifeng (2021-01-12). "GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding". arXiv:2006.16668 [cs.CL].
+ Dai, Andrew M; Du, Nan (December 9, 2021). "More Efficient In-Context Learning with GLaM". ai.googleblog.com. Archived from the original on 2023-03-12. Retrieved 2023-03-09.
+ Mann, Tobias. "How to run an LLM locally on your PC in less than 10 minutes". www.theregister.com. Retrieved 2024-05-17.
+ Nagel, Markus; Amjad, Rana Ali; Baalen, Mart Van; Louizos, Christos; Blankevoort, Tijmen (2020-11-21). "Up or Down? Adaptive Rounding for Post-Training Quantization". Proceedings of the 37th International Conference on Machine Learning. PMLR: 7197–7206. Archived from the original on 2023-06-14. Retrieved 2023-06-14.
+ Wang, Yizhong; Kordi, Yeganeh; Mishra, Swaroop; Liu, Alisa; Smith, Noah A.; Khashabi, Daniel; Hajishirzi, Hannaneh (2022). "Self-Instruct: Aligning Language Model with Self Generated Instructions". arXiv:2212.10560 [cs.CL].
+ "Introducing ChatGPT". openai.com. 13 March 2024.
+ "OpenAI Platform". platform.openai.com.
+ "Giving Claude a role with a system prompt". Anthropic.
+ Lewis, Patrick; Perez, Ethan; Piktus, Aleksandra; Petroni, Fabio; Karpukhin, Vladimir; Goyal, Naman; Küttler, Heinrich; Lewis, Mike; Yih, Wen-tau; Rocktäschel, Tim; Riedel, Sebastian; Kiela, Douwe (2020). "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks". Advances in Neural Information Processing Systems. 33. Curran Associates, Inc.: 9459–9474. arXiv:2005.11401. Archived from the original on 2023-06-12. Retrieved 2023-06-12.
+ Dickson, Ben (2025-04-02). "The tool integration problem that's holding back enterprise AI (and how CoTools solves it)". VentureBeat. Retrieved 2025-05-26.
+ Liang, Yaobo; Wu, Chenfei; Song, Ting; Wu, Wenshan; Xia, Yan; Liu, Yu; Ou, Yang; Lu, Shuai; Ji, Lei; Mao, Shaoguang; Wang, Yun; Shou, Linjun; Gong, Ming; Duan, Nan (2023-03-01). "TaskMatrix.AI: Completing Tasks by Connecting Foundation Models with Millions of APIs". arXiv:2303.16434 [cs.AI].
+ Patil, Shishir G.; Zhang, Tianjun; Wang, Xin; Gonzalez, Joseph E. (2023-05-01). "Gorilla: Large Language Model Connected with Massive APIs". arXiv:2305.15334 [cs.CL].
+ "ChatGPT-AutoExpert/_system-prompts/all_tools.md at 835baae768870aa9747663c24d8216820d24fd74 · spdustin/ChatGPT-AutoExpert". GitHub.
+ Wang, Lei; Ma, Chen; Feng, Xueyang; Zhang, Zeyu; Yang, Hao; Zhang, Jingsen; Chen, Zhiyuan; Tang, Jiakai; Chen, Xu; Lin, Yankai; Zhao, Wayne Xin; Wei, Zhewei; Wen, Jirong (December 2024). "A survey on large language model based autonomous agents". Frontiers of Computer Science. 18 (6) 186345. arXiv:2308.11432. doi:10.1007/s11704-024-40231-1.
+ Yao, Shunyu; Zhao, Jeffrey; Yu, Dian; Du, Nan; Shafran, Izhak; Narasimhan, Karthik; Cao, Yuan (2022-10-01). "ReAct: Synergizing Reasoning and Acting in Language Models". arXiv:2210.03629 [cs.CL].
+ Wang, Zihao; Cai, Shaofei; Liu, Anji; Ma, Xiaojian; Liang, Yitao (2023-02-03). "Describe, Explain, Plan and Select: Interactive Planning with Large Language Models Enables Open-World Multi-Task Agents". arXiv:2302.01560 [cs.AI].
+ Shinn, Noah; Cassano, Federico; Labash, Beck; Gopinath, Ashwin; Narasimhan, Karthik; Yao, Shunyu (2023-03-01). "Reflexion: Language Agents with Verbal Reinforcement Learning". arXiv:2303.11366 [cs.AI].
+ Hao, Shibo; Gu, Yi; Ma, Haodi; Jiahua Hong, Joshua; Wang, Zhen; Zhe Wang, Daisy; Hu, Zhiting (2023-05-01). "Reasoning with Language Model is Planning with World Model". arXiv:2305.14992 [cs.CL].
+ Zhang, Jenny; Lehman, Joel; Stanley, Kenneth; Clune, Jeff (2 June 2023). "OMNI: Open-endedness via Models of human Notions of Interestingness". arXiv:2306.01711 [cs.AI].
+ "Voyager | An Open-Ended Embodied Agent with Large Language Models". voyager.minedojo.org. Archived from the original on 2023-06-08. Retrieved 2023-06-09.
+ Park, Joon Sung; O'Brien, Joseph C.; Cai, Carrie J.; Ringel Morris, Meredith; Liang, Percy; Bernstein, Michael S. (2023-04-01). "Generative Agents: Interactive Simulacra of Human Behavior". arXiv:2304.03442 [cs.HC].
+ Wei, Jason; Wang, Xuezhi; Schuurmans, Dale; Bosma, Maarten; Ichter, Brian; Xia, Fei; Chi, Ed; Le, Quoc; Zhou, Denny (2023-01-10). "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models". arXiv:2201.11903 [cs.CL].
+ Wu, Tongshuang; Jiang, Ellen; Donsbach, Aaron; Gray, Jeff; Molina, Alejandra; Terry, Michael; Cai, Carrie J. (2022-03-13). "PromptChainer: Chaining Large Language Model Prompts through Visual Programming". arXiv:2203.06566 [cs.HC].
+ "What is prompt chaining?". IBM. 23 April 2024.
+ "What is chain of thought (CoT) prompting?". IBM. 23 April 2025.
+ Schreiner, Maximilian (2022-09-27). "Deeper insights into AI language models - chain of thought prompting as a success factor". The Decoder. Retrieved 2025-06-30.
+ Metz, Cade (2024-12-20). "OpenAI Unveils New A.I. That Can 'Reason' Through Math and Science Problems". The New York Times. Retrieved 2025-02-03.
+ Gibney, Elizabeth (2025-01-30). "China's cheap, open AI model DeepSeek thrills scientists". Nature. Retrieved 2025-02-03.
+ Sharma, Asankhaya. "OptiLLM: Optimizing inference proxy for LLMs". GitHub. Retrieved 2025-08-05.
+ "OptiLLM: An OpenAI API Compatible Optimizing Inference Proxy which Implements Several State-of-the-Art Techniques that can Improve the Accuracy and Performance of LLMs". MarkTechPost. 2024-11-18. Retrieved 2025-08-05.
+ Kiros, Ryan; Salakhutdinov, Ruslan; Zemel, Rich (2014-06-18). "Multimodal Neural Language Models". Proceedings of the 31st International Conference on Machine Learning. PMLR: 595–603. Archived from the original on 2023-07-02. Retrieved 2023-07-02.
+ Driess, Danny; Xia, Fei; Sajjadi, Mehdi S. M.; Lynch, Corey; Chowdhery, Aakanksha; Ichter, Brian; Wahid, Ayzaan; Tompson, Jonathan; Vuong, Quan; Yu, Tianhe; Huang, Wenlong; Chebotar, Yevgen; Sermanet, Pierre; Duckworth, Daniel; Levine, Sergey (2023-03-01). "PaLM-E: An Embodied Multimodal Language Model". arXiv:2303.03378 [cs.LG].
+ Liu, Haotian; Li, Chunyuan; Wu, Qingyang; Lee, Yong Jae (2023-04-01). "Visual Instruction Tuning". arXiv:2304.08485 [cs.CV].
+ Zhang, Hang; Li, Xin; Bing, Lidong (2023-06-01). "Video-LLaMA: An Instruction-tuned Audio-Visual Language Model for Video Understanding". arXiv:2306.02858 [cs.CL].
+ "OpenAI says natively multimodal GPT-4o eats text, visuals, sound – and emits the same". The Register. 2024-05-13.
+ Zia, Dr Tehseen (2024-01-08). "Unveiling of Large Multimodal Models: Shaping the Landscape of Language Models in 2024". Unite.AI. Retrieved 2025-05-30.
+ Li, Junnan; Li, Dongxu; Savarese, Silvio; Hoi, Steven (2023-01-01). "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models". arXiv:2301.12597 [cs.CV].
+ Kumar, Puneet; Khokher, Vedanti; Gupta, Yukti; Raman, Balasubramanian (2021). Hybrid Fusion Based Approach for Multimodal Emotion Recognition with Insufficient Labeled Data. pp. 314–318. doi:10.1109/ICIP42928.2021.9506714. ISBN 978-1-6654-4115-5.
+ Alayrac, Jean-Baptiste; Donahue, Jeff; Luc, Pauline; Miech, Antoine; Barr, Iain; Hasson, Yana; Lenc, Karel; Mensch, Arthur; Millican, Katherine; Reynolds, Malcolm; Ring, Roman; Rutherford, Eliza; Cabi, Serkan; Han, Tengda; Gong, Zhitao (2022-12-06). "Flamingo: a Visual Language Model for Few-Shot Learning". Advances in Neural Information Processing Systems. 35: 23716–23736. arXiv:2204.14198. Archived from the original on 2023-07-02. Retrieved 2023-07-02.
+ Finnie-Ansley, James; Denny, Paul; Becker, Brett A.; Luxton-Reilly, Andrew; Prather, James (14 February 2022). "The Robots Are Coming: Exploring the Implications of OpenAI Codex on Introductory Programming". Proceedings of the 24th Australasian Computing Education Conference. New York, NY, USA: Association for Computing Machinery. pp. 10–19. doi:10.1145/3511861.3511863. ISBN 978-1-4503-9643-1. S2CID 246681316.
+ Husein, Rasha Ahmad; Aburajouh, Hala; Catal, Cagatay (March 2025). "Large language models for code completion: A systematic literature review". Computer Standards & Interfaces. 92 103917. doi:10.1016/j.csi.2024.103917.
+ Weissenow, Konstantin; Rost, Burkhard (April 2025). "Are protein language models the new universal key?". Current Opinion in Structural Biology. 91 102997. doi:10.1016/j.sbi.2025.102997. PMID 39921962.
+ Lin, Zeming; Akin, Halil; Rao, Roshan; Hie, Brian; Zhu, Zhongkai; Lu, Wenting; Smetanin, Nikita; Verkuil, Robert; Kabeli, Ori; Shmueli, Yaniv; dos Santos Costa, Allan; Fazel-Zarandi, Maryam; Sercu, Tom; Candido, Salvatore; Rives, Alexander (17 March 2023). "Evolutionary-scale prediction of atomic-level protein structure with a language model". Science. 379 (6637): 1123–1130. Bibcode:2023Sci...379.1123L. bioRxiv 10.1101/2022.07.20.500902. doi:10.1126/science.ade2574. PMID 36927031.
+ "ESM Metagenomic Atlas | Meta AI". esmatlas.com.
+ Hayes, Thomas; Rao, Roshan; Akin, Halil; Sofroniew, Nicholas J.; Oktay, Deniz; Lin, Zeming; Verkuil, Robert; Tran, Vincent Q.; Deaton, Jonathan; Wiggert, Marius; Badkundri, Rohil; Shafkat, Irhum; Gong, Jun; Derry, Alexander; Molina, Raul S.; Thomas, Neil; Khan, Yousuf A.; Mishra, Chetan; Kim, Carolyn; Bartie, Liam J.; Nemeth, Matthew; Hsu, Patrick D.; Sercu, Tom; Candido, Salvatore; Rives, Alexander (21 February 2025). "Simulating 500 million years of evolution with a language model". Science. 387 (6736): 850–858. Bibcode:2025Sci...387..850H. doi:10.1126/science.ads0018. PMID 39818825.
+ Fishman, Veniamin; Kuratov, Yuri; Shmelev, Aleksei; Petrov, Maxim; Penzar, Dmitry; Shepelin, Denis; Chekanov, Nikolay; Kardymon, Olga; Burtsev, Mikhail (11 January 2025). "GENA-LM: a family of open-source foundational DNA language models for long sequences". Nucleic Acids Research. 53 (2): gkae1310. doi:10.1093/nar/gkae1310. PMC 11734698. PMID 39817513.
+ Wang, Ning; Bian, Jiang; Li, Yuchen; Li, Xuhong; Mumtaz, Shahid; Kong, Linghe; Xiong, Haoyi (13 May 2024). "Multi-purpose RNA language modelling with motif-aware pretraining and type-guided fine-tuning". Nature Machine Intelligence. 6 (5): 548–557. doi:10.1038/s42256-024-00836-4.
+ Hoffmann, Jordan; Borgeaud, Sebastian; Mensch, Arthur; Buchatskaya, Elena; Cai, Trevor; Rutherford, Eliza; Casas, Diego de Las; Hendricks, Lisa Anne; Welbl, Johannes; Clark, Aidan; Hennigan, Tom; Noland, Eric; Millican, Katie; Driessche, George van den; Damoc, Bogdan (2022-03-29). "Training Compute-Optimal Large Language Models". arXiv:2203.15556 [cs.CL].
+ Caballero, Ethan; Gupta, Kshitij; Rish, Irina; Krueger, David (2022). "Broken Neural Scaling Laws". arXiv:2210.14891 [cs.LG].
+ Wei, Jason; Tay, Yi; Bommasani, Rishi; Raffel, Colin; Zoph, Barret; Borgeaud, Sebastian; Yogatama, Dani; Bosma, Maarten; Zhou, Denny; Metzler, Donald; Chi, Ed H.; Hashimoto, Tatsunori; Vinyals, Oriol; Liang, Percy; Dean, Jeff; Fedus, William (31 August 2022). "Emergent Abilities of Large Language Models". Transactions on Machine Learning Research. ISSN 2835-8856. Archived from the original on 22 March 2023. Retrieved 19 March 2023.
+ "137 emergent abilities of large language models". Jason Wei. Retrieved 2023-06-24.
+ Bowman, Samuel R. (2023). "Eight Things to Know about Large Language Models". arXiv:2304.00612 [cs.CL].
+ Hahn, Michael; Goyal, Navin (2023-03-14). "A Theory of Emergent In-Context Learning as Implicit Structure Induction". arXiv:2303.07971 [cs.LG].
+ Pilehvar, Mohammad Taher; Camacho-Collados, Jose (June 2019). "Proceedings of the 2019 Conference of the North". Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies, Volume 1 (Long and Short Papers). Minneapolis, Minnesota: Association for Computational Linguistics: 1267–1273. doi:10.18653/v1/N19-1128. S2CID 102353817. Archived from the original on 2023-06-27. Retrieved 2023-06-27.
+ "WiC: The Word-in-Context Dataset". pilehvar.github.io. Archived from the original on 2023-06-27. Retrieved 2023-06-27.
+ Patel, Roma; Pavlick, Ellie (2021-10-06). "Mapping Language Models to Grounded Conceptual Spaces". ICLR. Archived from the original on 2023-06-24. Retrieved 2023-06-27.
+ A Closer Look at Large Language Models Emergent Abilities Archived 2023-06-24 at the Wayback Machine (Yao Fu, Nov 20, 2022)
+ Ornes, Stephen (March 16, 2023). "The Unpredictable Abilities Emerging From Large AI Models". Quanta Magazine. Archived from the original on March 16, 2023. Retrieved March 16, 2023.
+ Schaeffer, Rylan; Miranda, Brando; Koyejo, Sanmi (2023-04-01). "Are Emergent Abilities of Large Language Models a Mirage?". arXiv:2304.15004 [cs.AI].
+ Blank, Idan A. (November 2023). "What are large language models supposed to model?". Trends in Cognitive Sciences. 27 (11): 987–989. doi:10.1016/j.tics.2023.08.006. PMID 37659920.
+ "Mapping the Mind of a Large Language Model". Anthropic. 2023-12-12. Retrieved 2025-08-24.
+ "Extracting Concepts from GPT-4". OpenAI. 2023-09-26. Retrieved 2025-08-24.
+ Nanda, Neel; Chan, Lawrence; Lieberum, Tom; Smith, Jess; Steinhardt, Jacob (2023-01-01). "Progress measures for grokking via mechanistic interpretability". arXiv:2301.05217 [cs.LG].
+ Ananthaswamy, Anil (2024-04-12). "How Do Machines 'Grok' Data?". Quanta Magazine. Retrieved 2025-06-30.
+ "On the Biology of a Large Language Model". Transformer Circuits. Retrieved 2025-06-30.
+ Mitchell, Melanie; Krakauer, David C. (28 March 2023). "The debate over understanding in AI's large language models". Proceedings of the National Academy of Sciences. 120 (13): e2215907120. arXiv:2210.13966. Bibcode:2023PNAS..12015907M. doi:10.1073/pnas.2215907120. PMC 10068812. PMID 36943882.
+ Metz, Cade (16 May 2023). "Microsoft Says New A.I. Shows Signs of Human Reasoning". The New York Times.
+ Bubeck, Sébastien; Chandrasekaran, Varun; Eldan, Ronen; Gehrke, Johannes; Horvitz, Eric; Kamar, Ece; Lee, Peter; Lee, Yin Tat; Li, Yuanzhi; Lundberg, Scott; Nori, Harsha; Palangi, Hamid; Ribeiro, Marco Tulio; Zhang, Yi (2023). "Sparks of Artificial General Intelligence: Early experiments with GPT-4". arXiv:2303.12712 [cs.CL].
+ "Anthropic CEO Dario Amodei pens a smart look at our AI future". Fast Company. October 17, 2024.
+ "ChatGPT is more like an 'alien intelligence' than a human brain, says futurist". ZDNET. 2023. Archived from the original on 12 June 2023. Retrieved 12 June 2023.
+ Newport, Cal (13 April 2023). "What Kind of Mind Does ChatGPT Have?". The New Yorker. Archived from the original on 12 June 2023. Retrieved 12 June 2023.
+ Roose, Kevin (30 May 2023). "Why an Octopus-like Creature Has Come to Symbolize the State of A.I." The New York Times. Archived from the original on 30 May 2023. Retrieved 12 June 2023.
+ "The A to Z of Artificial Intelligence". Time Magazine. 13 April 2023. Archived from the original on 16 June 2023. Retrieved 12 June 2023.
+ Ji, Ziwei; Lee, Nayeon; Frieske, Rita; Yu, Tiezheng; Su, Dan; Xu, Yan; Ishii, Etsuko; Bang, Yejin; Dai, Wenliang; Madotto, Andrea; Fung, Pascale (November 2022). "Survey of Hallucination in Natural Language Generation" (pdf). ACM Computing Surveys. 55 (12). Association for Computing Machinery: 1–38. arXiv:2202.03629. doi:10.1145/3571730. S2CID 246652372. Archived from the original on 26 March 2023. Retrieved 15 January 2023.
+ Varshney, Neeraj; Yao, Wenlin; Zhang, Hongming; Chen, Jianshu; Yu, Dong (2023). "A Stitch in Time Saves Nine: Detecting and Mitigating Hallucinations of LLMs by Validating Low-Confidence Generation". arXiv:2307.03987 [cs.CL].
+ Lin, Belle (2025-02-05). "Why Amazon is Betting on 'Automated Reasoning' to Reduce AI's Hallucinations: The tech giant says an obscure field that combines AI and math can mitigate—but not completely eliminate—AI's propensity to provide wrong answers". Wall Street Journal. ISSN 0099-9660.
+ Lakoff, George (1999). Philosophy in the Flesh: The Embodied Mind and Its Challenge to Western Philosophy; Appendix: The Neural Theory of Language Paradigm. New York Basic Books. pp. 569–583. ISBN 978-0-465-05674-3.
+ Evans, Vyvyan. (2014). The Language Myth. Cambridge University Press. ISBN 978-1-107-04396-1.
+ Friston, Karl J. (2022). Active Inference: The Free Energy Principle in Mind, Brain, and Behavior; Chapter 4 The Generative Models of Active Inference. The MIT Press. ISBN 978-0-262-36997-8.
+ Brown, Tom B.; Mann, Benjamin; Ryder, Nick; Subbiah, Melanie; Kaplan, Jared; Dhariwal, Prafulla; Neelakantan, Arvind; Shyam, Pranav; Sastry, Girish; Askell, Amanda; Agarwal, Sandhini; Herbert-Voss, Ariel; Krueger, Gretchen; Henighan, Tom; Child, Rewon; Ramesh, Aditya; Ziegler, Daniel M.; Wu, Jeffrey; Winter, Clemens; Hesse, Christopher; Chen, Mark; Sigler, Eric; Litwin, Mateusz; Gray, Scott; Chess, Benjamin; Clark, Jack; Berner, Christopher; McCandlish, Sam; Radford, Alec; Sutskever, Ilya; Amodei, Dario (Dec 2020). Larochelle, H.; Ranzato, M.; Hadsell, R.; Balcan, M.F.; Lin, H. (eds.). "Language Models are Few-Shot Learners" (PDF). Advances in Neural Information Processing Systems. 33. Curran Associates, Inc.: 1877–1901. Archived (PDF) from the original on 2023-11-17. Retrieved 2023-03-14.
+ Huyen, Chip (October 18, 2019). "Evaluation Metrics for Language Modeling". The Gradient. Retrieved January 14, 2024.
+ Edwards, Benj (2023-09-28). "AI language models can exceed PNG and FLAC in lossless compression, says study". Ars Technica. Retrieved 2025-05-29.
+ "openai/simple-evals". OpenAI. 2024-05-28. Retrieved 2024-05-28.
+ "openai/evals". OpenAI. 2024-05-28. Archived from the original on 2024-05-08. Retrieved 2024-05-28.
+ Clark, Christopher; Lee, Kenton; Chang, Ming-Wei; Kwiatkowski, Tom; Collins, Michael; Toutanova, Kristina (2019). "BoolQ: Exploring the Surprising Difficulty of Natural Yes/No Questions". arXiv:1905.10044 [cs.CL].
+ Wayne Xin Zhao; Zhou, Kun; Li, Junyi; Tang, Tianyi; Wang, Xiaolei; Hou, Yupeng; Min, Yingqian; Zhang, Beichen; Zhang, Junjie; Dong, Zican; Du, Yifan; Yang, Chen; Chen, Yushuo; Chen, Zhipeng; Jiang, Jinhao; Ren, Ruiyang; Li, Yifan; Tang, Xinyu; Liu, Zikang; Liu, Peiyu; Nie, Jian-Yun; Wen, Ji-Rong (2023). "A Survey of Large Language Models". arXiv:2303.18223 [cs.CL].
+ Nangia, Nikita and Vania, Clara and Bhalerao, Rasika and Bowman, Samuel R. (November 2020). "CrowS-Pairs: A Challenge Dataset for Measuring Social Biases in Masked Language Models". In Webber, Bonnie and Cohn, Trevor and He, Yulan and Liu, Yang (ed.). Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP). Association for Computational Linguistics. pp. 1953–1967. arXiv:2010.00133. doi:10.18653/v1/2020.emnlp-main.154.
+ Nadeem, Moin and Bethke, Anna and Reddy, Siva (August 2021). "StereoSet: Measuring stereotypical bias in pretrained language models". In Zong, Chengqing and Xia, Fei and Li, Wenjie and Navigli, Roberto (ed.). Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing (Volume 1: Long Papers). Association for Computational Linguistics. pp. 5356–5371. arXiv:2004.09456. doi:10.18653/v1/2021.acl-long.416.
+ Simpson, Shmona and Nukpezah, Jonathan and Kie Brooks and Pandya, Raaghav (17 December 2024). "Parity benchmark for measuring bias in LLMs". AI and Ethics. 5 (3). Springer: 3087–3101. doi:10.1007/s43681-024-00613-4.
+ Caramancion, Kevin Matthe (2023-11-13). "News Verifiers Showdown: A Comparative Performance Evaluation of ChatGPT 3.5, ChatGPT 4.0, Bing AI, and Bard in News Fact-Checking". 2023 IEEE Future Networks World Forum (FNWF). IEEE. pp. 1–6. arXiv:2306.17176. doi:10.1109/FNWF58287.2023.10520446. ISBN 979-8-3503-2458-7.
+ "Sanitized open-source datasets for natural language and code understanding: how we evaluated our 70B model". imbue.com. Archived from the original on 2024-07-26. Retrieved 2024-07-24.
+ Srivastava, Aarohi; et al. (2022). "Beyond the Imitation Game: Quantifying and extrapolating the capabilities of language models". arXiv:2206.04615 [cs.CL].
+ Lin, Stephanie; Hilton, Jacob; Evans, Owain (2021). "TruthfulQA: Measuring How Models Mimic Human Falsehoods". arXiv:2109.07958 [cs.CL].
+ Zellers, Rowan; Holtzman, Ari; Bisk, Yonatan; Farhadi, Ali; Choi, Yejin (2019). "HellaSwag: Can a Machine Really Finish Your Sentence?". arXiv:1905.07830 [cs.CL].
+ "Prepare for truly useful large language models". Nature Biomedical Engineering. 7 (2): 85–86. 7 March 2023. doi:10.1038/s41551-023-01012-6. PMID 36882584. S2CID 257403466.
+ "Your job is (probably) safe from artificial intelligence". The Economist. 7 May 2023. Archived from the original on 17 June 2023. Retrieved 18 June 2023.
+ "Generative AI Could Raise Global GDP by 7%". Goldman Sachs. Archived from the original on 18 June 2023. Retrieved 18 June 2023.
+ Brinkmann, Levin; Baumann, Fabian; Bonnefon, Jean-François; Derex, Maxime; Müller, Thomas F.; Nussberger, Anne-Marie; Czaplicka, Agnieszka; Acerbi, Alberto; Griffiths, Thomas L.; Henrich, Joseph; Leibo, Joel Z.; McElreath, Richard; Oudeyer, Pierre-Yves; Stray, Jonathan; Rahwan, Iyad (2023-11-20). "Machine culture". Nature Human Behaviour. 7 (11): 1855–1868. arXiv:2311.11388. doi:10.1038/s41562-023-01742-2. ISSN 2397-3374. PMID 37985914.
+ Peng, Zhencan; Wang, Zhizhi; Deng, Dong (13 June 2023). "Near-Duplicate Sequence Search at Scale for Large Language Model Memorization Evaluation" (PDF). Proceedings of the ACM on Management of Data. 1 (2): 1–18. doi:10.1145/3589324. S2CID 259213212. Archived (PDF) from the original on 2024-08-27. Retrieved 2024-01-20. Citing Lee et al 2022.
+ Peng, Wang & Deng 2023, p. 8.
+ Stephen Council (1 Dec 2023). "How Googlers cracked an SF rival's tech model with a single word". SFGATE. Archived from the original on 16 December 2023.
+ Alba, Davey (1 May 2023). "AI chatbots have been used to create dozens of news content farms". The Japan Times. Retrieved 18 June 2023.
+ "Could chatbots help devise the next pandemic virus?". Science. 14 June 2023. doi:10.1126/science.adj2463. Archived from the original on 18 June 2023. Retrieved 18 June 2023.
+ Edwards, Benj (2024-01-15). "AI poisoning could turn models into destructive "sleeper agents," says Anthropic". Ars Technica. Retrieved 2025-07-19.
+ Kang, Daniel (2023). "Exploiting programmatic behavior of LLMs: Dual-use through standard security attacks". arXiv:2302.05733 [cs.CR].
+ "Russian propaganda may be flooding AI models". The American Sunlight Project. 26 February 2025. Retrieved 2025-04-11.
+ Goudarzi, Sara (2025-03-26). "Russian networks flood the Internet with propaganda, aiming to corrupt AI chatbots". Bulletin of the Atomic Scientists. Retrieved 2025-04-10.
+ Wang, Yongge (20 June 2024). "Encryption Based Covert Channel for Large Language Models" (PDF). IACR ePrint 2024/586. Archived (PDF) from the original on 24 June 2024. Retrieved 24 June 2024.
+ "openai-python/chatml.md at v0.27.6 · openai/openai-python". GitHub.
+ Douglas, Will (March 3, 2023). "The inside story of how ChatGPT was built from the people who made it". MIT Technology Review. Archived from the original on March 3, 2023. Retrieved March 6, 2023.
+ Greshake, Kai; Abdelnabi, Sahar; Mishra, Shailesh; Endres, Christoph; Holz, Thorsten; Fritz, Mario (2023-02-01). "Not what you've signed up for: Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection". arXiv:2302.12173 [cs.CR].
+ Xu, Weijie; Wang, Yiwen; Xue, Chi; Hu, Xiangkun; Fang, Xi; Dong, Guimin; Reddy, Chandan K. (2025-06-28). "Quantifying Fairness in LLMs Beyond Tokens: A Semantic and Statistical Perspective". arXiv:2506.19028v1 [cs.CL].
+ Luo, Queenie; Puett, Michael J.; Smith, Michael D. (2023-03-28). "A Perspectival Mirror of the Elephant: Investigating Language Bias on Google, ChatGPT, Wikipedia, and YouTube". arXiv:2303.16281v2 [cs.CY].
+ Wang, Angelina; Morgenstern, Jamie; Dickerson, John P. (17 February 2025). "Large language models that replace human participants can harmfully misportray and flatten identity groups". Nature Machine Intelligence. 7 (3): 400–411. arXiv:2402.01908. doi:10.1038/s42256-025-00986-z.
+ Cheng, Myra; Durmus, Esin; Jurafsky, Dan (2023-05-29). "Marked Personas: Using Natural Language Prompts to Measure Stereotypes in Language Models". arXiv:2305.18189 [cs.CL].
+ Kotek, Hadas; Dockum, Rikker; Sun, David (2023-11-05). "Gender bias and stereotypes in Large Language Models". Proceedings of the ACM Collective Intelligence Conference. New York, NY, USA: Association for Computing Machinery. pp. 12–24. arXiv:2308.14921. doi:10.1145/3582269.3615599. ISBN 979-8-4007-0113-9.
+ Choi, Hyeong Kyu; Xu, Weijie; Xue, Chi; Eckman, Stephanie; Reddy, Chandan K. (2024-09-27). "Mitigating Selection Bias with Node Pruning and Auxiliary Options". arXiv:2409.18857 [cs.AI].
+ Zheng, Chujie; Zhou, Hao; Meng, Fandong; Zhou, Jie; Huang, Minlie (2023-09-07). "Large Language Models Are Not Robust Multiple Choice Selectors". arXiv:2309.03882 [cs.CL].
+ Heikkilä, Melissa (August 7, 2023). "AI language models are rife with different political biases". MIT Technology Review. Retrieved 2023-12-29.
+ Mehta, Sourabh (2024-07-03). "How Much Energy Do LLMs Consume? Unveiling the Power Behind AI". Association of Data Scientists. Retrieved 2025-01-27.
+ "Artificial Intelligence wants to go nuclear. Will it work?". NPR. Retrieved 2025-01-27.
+ Roy, Dareen (December 19, 2024). "AI's energy hunger fuels geothermal startups but natgas rivalry clouds future". Reuters.
+ Kosmyna, Nataliya; Hauptmann, Eugene; Yuan, Ye Tong; Situ, Jessica; Liao, Xian-Hao; Beresnitzky, Ashly Vivian; Braunstein, Iris; Maes, Pattie (June 10, 2025). "Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task". arXiv:2506.08872 [cs.AI].
+ Zao-Sanders, Marc (2024-03-19). "How People Are Really Using GenAI". Harvard Business Review. ISSN 0017-8012. Retrieved 2025-08-10.
+ Rousmaniere, Tony; Zhang, Yimeng; Li, Xu; Shah, Siddharth (2025-07-21). "Large language models as mental health resources: Patterns of use in the United States". Practice Innovations. doi:10.1037/pri0000292. ISSN 2377-8903.
+ Ji, Shaoxiong; Zhang, Tianlin; Yang, Kailai; Ananiadou, Sophia; Cambria, Erik (2023-12-17). "Rethinking Large Language Models in Mental Health Applications". arXiv:2311.11267 [cs.CL].
+ Moore, Jared; Grabb, Declan; Agnew, William; Klyman, Kevin; Chancellor, Stevie; Ong, Desmond C.; Haber, Nick (2025-04-25). "Expressing stigma and inappropriate responses prevents LLMS from safely replacing mental health providers". Proceedings of the 2025 ACM Conference on Fairness, Accountability, and Transparency. pp. 599–627. arXiv:2504.18412. doi:10.1145/3715275.3732039. ISBN 979-8-4007-1482-5.
+ Grabb, Declan; Lamparth, Max; Vasan, Nina (2024-08-14). "Risks from Language Models for Automated Mental Healthcare: Ethics and Structure for Implementation". arXiv:2406.11852 [cs.CY].
+ McBain, Ryan K.; Cantor, Jonathan H.; Zhang, Li Ang; Baker, Olesya; Zhang, Fang; Halbisen, Alyssa; Kofner, Aaron; Breslau, Joshua; Stein, Bradley; Mehrotra, Ateev; Yu, Hao (2025-03-05). "Competency of Large Language Models in Evaluating Appropriate Responses to Suicidal Ideation: Comparative Study". Journal of Medical Internet Research. 27 (1): e67891. doi:10.2196/67891. PMC 11928068. PMID 40053817.
+Further reading
+Jurafsky, Dan, Martin, James. H. Speech and Language Processing: An Introduction to Natural Language Processing, Computational Linguistics, and Speech Recognition, 3rd Edition draft, 2023.
+Yin, Shukang; Fu, Chaoyou; Zhao, Sirui; Li, Ke; Sun, Xing; Xu, Tong; Chen, Enhong (2024). "A Survey on Multimodal Large Language Models". National Science Review. 11 (12): nwae403. arXiv:2306.13549. doi:10.1093/nsr/nwae403. PMC 11645129. PMID 39679213.
+"AI Index Report 2024 – Artificial Intelligence Index". aiindex.stanford.edu. Retrieved 2024-05-05.
+Frank, Michael C. (27 June 2023). "Baby steps in evaluating the capacities of large language models". Nature Reviews Psychology. 2 (8): 451–452. doi:10.1038/s44159-023-00211-x. ISSN 2731-0574. S2CID 259713140. Retrieved 2 July 2023.
+vte
+Natural language processing
+vte
+Artificial intelligence (AI)
+Categories: Large language modelsDeep learningNatural language processing
+This page was last edited on 26 August 2025, at 17:31 (UTC).
+Text is available under the Creative Commons Attribution-ShareAlike 4.0 License; additional terms may apply. By using this site, you agree to the Terms of Use and Privacy Policy. Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a non-profit organization.
+Privacy policyAbout WikipediaDisclaimersContact WikipediaCode of ConductDevelopersStatisticsCookie statementMobile view
+Wikimedia Foundation
+Powered by MediaWiki

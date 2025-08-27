@@ -1,0 +1,94 @@
+Contents hide
+(Top)
+History
+Capabilities
+LangChain tools
+References
+External links
+LangChain
+
+Article
+Talk
+Read
+Edit
+View history
+
+Tools
+Appearance hide
+Text
+
+Small
+
+Standard
+
+Large
+Width
+
+Standard
+
+Wide
+Color (beta)
+
+Automatic
+
+Light
+
+Dark
+From Wikipedia, the free encyclopedia
+LangChain
+🦜️🔗, the parrot and chain emojis
+Developer(s)	Harrison Chase
+Initial release	October 2022
+Stable release	
+0.1.16[1] / 11 April 2024; 16 months ago
+Repository	github.com/langchain-ai/langchain
+Written in	Python and JavaScript
+Type	Software framework for large language model application development
+License	MIT License
+Website	LangChain.com
+	Free and open-source software portal
+LangChain is a software framework that helps facilitate the integration of large language models (LLMs) into applications. As a language model integration framework, LangChain's use-cases largely overlap with those of language models in general, including document analysis and summarization, chatbots, and code analysis.[2]
+
+History
+LangChain was launched in October 2022 as an open source project by Harrison Chase, while working at machine learning startup Robust Intelligence. In April 2023, LangChain had incorporated and the new startup raised over $20 million in funding at a valuation of at least $200 million from venture firm Sequoia Capital, a week after announcing a $10 million seed investment from Benchmark.[3][4]
+
+In the third quarter of 2023, the LangChain Expression Language (LCEL) was introduced, which provides a declarative way to define chains of actions.[5][6]
+
+In October 2023 LangChain introduced LangServe, a deployment tool to host LCEL code as a production-ready API.[7]
+
+In February 2024 LangChain released LangSmith, a closed-source observability and evaluation platform for LLM applications, and announced a US $25 million Series A led by Sequoia Capital.[8] On 14 May 2025 the company launched LangGraph Platform into general availability, providing managed infrastructure for deploying long-running, stateful AI agents.[9]
+
+Capabilities
+LangChain's developers highlight the framework's applicability to use-cases including chatbots,[10] retrieval-augmented generation,[11] document summarization,[12] and synthetic data generation.[13]
+
+As of March 2023, LangChain included integrations with systems including Amazon, Google, and Microsoft Azure cloud storage;[14] API wrappers for news, movie information, and weather; Bash for summarization, syntax and semantics checking, and execution of shell scripts; multiple web scraping subsystems and templates; few-shot learning prompt generation support; finding and summarizing "todo" tasks in code; Google Drive documents, spreadsheets, and presentations summarization, extraction, and creation; Google Search and Microsoft Bing web search;[15] OpenAI, Anthropic, and Hugging Face language models; iFixit repair guides and wikis search and summarization; MapReduce for question answering, combining documents, and question generation; N-gram overlap scoring; PyPDF, pdfminer, fitz, and pymupdf for PDF file text extraction and manipulation; Python and JavaScript code generation, analysis, and debugging; Milvus vector database[16] to store and retrieve vector embeddings; Weaviate vector database[17] to cache embedding and data objects; Redis cache database storage; Python RequestsWrapper and other methods for API requests; SQL and NoSQL databases including JSON support; Streamlit, including for logging; text mapping for k-nearest neighbors search; time zone conversion and calendar operations; tracing and recording stack symbols in threaded and asynchronous subprocess runs; and the Wolfram Alpha website and SDK.[18] As of April 2023, it can read from more than 50 document types and data sources.[19]
+
+LangChain tools
+References
+ "Release 0.1.16". 11 April 2024. Retrieved 23 April 2024.
+ Buniatyan, Davit (2023). "Code Understanding Using LangChain". Activeloop.
+ Palazzolo, Stephanie (2023-04-13). "AI startup LangChain taps Sequoia to lead funding round at a valuation of at least $200 million". Business Insider. Archived from the original on 2023-04-18. Retrieved 2023-04-18.
+ Griffith, Erin; Metz, Cade (2023-03-14). "'Let 1,000 Flowers Bloom': A.I. Funding Frenzy Escalates". The New York Times. ISSN 0362-4331. Archived from the original on 2023-04-18. Retrieved 2023-04-18.
+ Mansurova, Mariya (2023-10-30). "Topic Modelling in production: Leveraging LangChain to move from ad-hoc Jupyter Notebooks to production modular service". towardsdatascience.com. Retrieved 2024-07-08.
+ "LangChain Expression Language". langchain.dev. 2023-08-01. Retrieved 2024-07-08.
+ "Introducing LangServe, the best way to deploy your LangChains". LangChain Blog. 2023-10-12. Retrieved 2023-10-17.
+ "Announcing the General Availability of LangSmith and Our Series A Led By Sequoia Capital". LangChain Blog. 2024-02-15. Retrieved 2025-08-03.
+ "LangGraph Platform is now Generally Available: Deploy & manage long-running, stateful Agents". LangChain Blog. 2025-05-14. Retrieved 2025-08-03.
+ "Chatbots | 🦜️🔗 Langchain". python.langchain.com. Archived from the original on 2024-03-14. Retrieved 2023-11-26.
+ "Retrieval-augmented generation (RAG) | 🦜️🔗 Langchain". python.langchain.com. Archived from the original on 2024-03-28. Retrieved 2023-11-26.
+ "Summarization | 🦜️🔗 Langchain". python.langchain.com. Archived from the original on 2024-01-06. Retrieved 2023-11-26.
+ "Synthetic data generation | 🦜️🔗 Langchain". python.langchain.com. Archived from the original on 2024-03-07. Retrieved 2023-11-26.
+ "Azure Cognitive Search and LangChain: A Seamless Integration for Enhanced Vector Search Capabilities". TECHCOMMUNITY.MICROSOFT.COM. Retrieved 2024-08-31.
+ "Best Alternative AI Content Strategies and LLM Frameworks". Medium. 2024-08-31. Retrieved 2024-08-31.
+ "Milvus — LangChain". python.langchain.com. Retrieved 2023-10-29.
+ "Weaviate". python.langchain.com. Retrieved 2024-01-17.
+ Hug, Daniel Patrick (2023-03-08). "Hierarchical topic tree of LangChain's integrations" (PDF). GitHub. Archived from the original on 2023-04-29. Retrieved 2023-04-18.
+ "Document Loaders — LangChain 0.0.142". python.langchain.com. Archived from the original on 2023-04-18. Retrieved 2023-04-18.
+External links
+LangChain
+at Wikipedia's sister projects
+Media from Commons
+Data from Wikidata
+Official website
+Discord server support hub
+Langchain-ai on GitHub
