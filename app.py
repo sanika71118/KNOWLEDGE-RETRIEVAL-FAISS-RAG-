@@ -3,7 +3,7 @@ import streamlit as st
 from rag_backend import main_query
 
 st.set_page_config(page_title="RAG QA System", layout="wide")
-st.title("Document Retrieval-Augmented Generation (RAG) QA")
+st.title("RAGenius")
 
 question = st.text_input("Ask a question:")
 
