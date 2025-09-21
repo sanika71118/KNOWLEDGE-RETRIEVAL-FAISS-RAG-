@@ -4,23 +4,25 @@ from typing import List, Dict
 import numpy as np
 import faiss
 from tqdm import tqdm
-from config import (
-    USE_OPENAI, EMBED_MODEL, OPENAI_API_KEY,
-    DATA_DIR, INDEX_DIR, FAISS_INDEX_PATH, DOCS_PICKLE_PATH
-)
+from config import USE_OPENAI, EMBED_MODEL, OPENAI_API_KEY, DATA_DIR, INDEX_DIR, FAISS_INDEX_PATH, DOCS_PICKLE_PATH
 
+# Embedding using OpenAI
 def embed_openai(texts: List[str]) -> np.ndarray:
     from openai import OpenAI
+
     if not OPENAI_API_KEY:
-        raise RuntimeError("OPENAI_API_KEY not set.")
+        raise RuntimeError("OPENAI_API_KEY not set. Add it to your .env file.")
+
     client = OpenAI(api_key=OPENAI_API_KEY)
     resp = client.embeddings.create(model=EMBED_MODEL, input=texts)
     vecs = np.array([d.embedding for d in resp.data], dtype="float32")
     return vecs
 
+# Placeholder for local embedding
 def embed_local(_):
     raise NotImplementedError("Set USE_OPENAI=True for now.")
 
+# Split text into chunks
 def chunk_text(text: str, chunk_size=900, overlap=150) -> List[str]:
     chunks, i = [], 0
     n = len(text)
@@ -31,7 +33,10 @@ def chunk_text(text: str, chunk_size=900, overlap=150) -> List[str]:
     return chunks
 
 def main():
+    # Ensure index directory exists
     os.makedirs(INDEX_DIR, exist_ok=True)
+
+    # Load all .txt files
     files = sorted(glob.glob(os.path.join(DATA_DIR, "*.txt")))
     if not files:
         raise FileNotFoundError(f"No .txt files found in {DATA_DIR}")
@@ -53,11 +58,12 @@ def main():
     else:
         vecs = embed_local(corpus)
 
-    # cosine similarity via normalized vectors + inner product index
+    # Normalize vectors for cosine similarity
     faiss.normalize_L2(vecs)
     index = faiss.IndexFlatIP(vecs.shape[1])
     index.add(vecs)
 
+    # Save FAISS index and docs
     faiss.write_index(index, FAISS_INDEX_PATH)
     with open(DOCS_PICKLE_PATH, "wb") as f:
         pickle.dump(docs, f)
