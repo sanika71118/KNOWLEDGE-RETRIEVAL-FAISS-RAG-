@@ -17,8 +17,10 @@ def embed_query(text: str) -> np.ndarray:
     client = get_openai_client()
     resp = client.embeddings.create(model=EMBED_MODEL, input=[text])
     vec = np.array(resp.data[0].embedding, dtype="float32")
-    faiss.normalize_L2(vec)
-    return vec.reshape(1, -1)  # FAISS expects 2D array
+    vec = vec.reshape(1, -1)          # <-- make it 2D
+    faiss.normalize_L2(vec)           # now works
+    return vec
+
 
 # Load FAISS index and documents
 def load_index_and_docs():
