@@ -1,85 +1,60 @@
 # query.py
-import argparse, pickle
-from typing import List, Tuple
+import os
+import pickle
 import numpy as np
 import faiss
-from config import (
-    USE_OPENAI, OPENAI_API_KEY, EMBED_MODEL, CHAT_MODEL,
-    FAISS_INDEX_PATH, DOCS_PICKLE_PATH, TOP_K,
-    MAX_DOC_CHARS_PER_DOC, MAX_TOTAL_CONTEXT_CHARS, SYSTEM_PROMPT
-)
+from config import USE_OPENAI, OPENAI_API_KEY, EMBED_MODEL, FAISS_INDEX_PATH, DOCS_PICKLE_PATH
+from openai import OpenAI
 
-def embed_query_openai(q: str) -> np.ndarray:
-    from openai import OpenAI
+# Load OpenAI client
+def get_openai_client():
     if not OPENAI_API_KEY:
-        raise RuntimeError("OPENAI_API_KEY not set.")
-    client = OpenAI(api_key=OPENAI_API_KEY)
-    resp = client.embeddings.create(model=EMBED_MODEL, input=[q])
-    vec = np.array(resp.data[0].embedding, dtype="float32")[None, :]
+        raise RuntimeError("OPENAI_API_KEY not set. Add it to your .env file.")
+    return OpenAI(api_key=OPENAI_API_KEY)
+
+# Embed query using OpenAI
+def embed_query(text: str) -> np.ndarray:
+    client = get_openai_client()
+    resp = client.embeddings.create(model=EMBED_MODEL, input=[text])
+    vec = np.array(resp.data[0].embedding, dtype="float32")
     faiss.normalize_L2(vec)
-    return vec
+    return vec.reshape(1, -1)  # FAISS expects 2D array
 
-def search(qvec: np.ndarray, top_k: int) -> List[Tuple[int, float]]:
+# Load FAISS index and documents
+def load_index_and_docs():
+    if not os.path.exists(FAISS_INDEX_PATH) or not os.path.exists(DOCS_PICKLE_PATH):
+        raise FileNotFoundError("FAISS index or docs pickle not found. Run ingest.py first.")
     index = faiss.read_index(FAISS_INDEX_PATH)
-    D, I = index.search(qvec, top_k)
-    return [(int(i), float(d)) for i, d in zip(I[0], D[0]) if i != -1]
-
-def load_docs():
     with open(DOCS_PICKLE_PATH, "rb") as f:
-        return pickle.load(f)
+        docs = pickle.load(f)
+    return index, docs
 
-def build_context(docs, hits) -> str:
-    # budget context across hits
-    if not hits:
-        return ""
-    per_doc = min(MAX_DOC_CHARS_PER_DOC, MAX_TOTAL_CONTEXT_CHARS // max(1, len(hits)))
-    parts = []
-    total = 0
-    for idx, score in hits:
-        snippet = docs[idx]["text"]
-        if len(snippet) > per_doc:
-            snippet = snippet[:per_doc] + "…"
-        part = f"[score={score:.3f} | source={docs[idx]['path']}]\n{snippet}"
-        parts.append(part)
-        total += len(snippet)
-        if total >= MAX_TOTAL_CONTEXT_CHARS:
-            break
-    return "\n\n".join(parts)
-
-def answer_openai(context: str, question: str) -> str:
-    from openai import OpenAI
-    client = OpenAI(api_key=OPENAI_API_KEY)
-    msgs = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
-    ]
-    resp = client.chat.completions.create(
-        model=CHAT_MODEL,
-        messages=msgs,
-        temperature=0.2,
-    )
-    return resp.choices[0].message.content.strip()
+# Search FAISS for top-k similar chunks
+def search_index(query_vec, index, docs, top_k=5):
+    D, I = index.search(query_vec, top_k)
+    results = []
+    for idx in I[0]:
+        results.append(docs[idx]["text"])
+    return results
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--q", required=True, help="your question")
-    ap.add_argument("--k", type=int, default=TOP_K)
-    args = ap.parse_args()
+    index, docs = load_index_and_docs()
+    print("FAISS index and documents loaded. Type your questions (type 'exit' to quit).")
 
-    qvec = embed_query_openai(args.q) if USE_OPENAI else None
-    hits = search(qvec, args.k)
-    docs = load_docs()
-    context = build_context(docs, hits)
+    while True:
+        q = input("\nYour question: ").strip()
+        if q.lower() in ["exit", "quit"]:
+            print("Exiting…")
+            break
 
-    print("----- retrieved context -----")
-    print(context or "(no context)")
-    print("-----------------------------")
-
-    if USE_OPENAI:
-        print("\n=== answer ===")
-        print(answer_openai(context, args.q))
-    else:
-        print("\n(OpenAI disabled) Implement local LLM call here.")
+        if USE_OPENAI:
+            q_vec = embed_query(q)
+            answers = search_index(q_vec, index, docs)
+            print("\nTop relevant chunks:")
+            for i, a in enumerate(answers, 1):
+                print(f"{i}. {a[:200]}{'...' if len(a) > 200 else ''}")
+        else:
+            print("USE_OPENAI=False is not supported currently.")
 
 if __name__ == "__main__":
     main()
